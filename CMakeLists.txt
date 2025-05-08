@@ -22,6 +22,7 @@ add_subdirectory(vendored/SDL_image EXCLUDE_FROM_ALL)
 add_executable(Aerofootball WIN32 main.cpp)
 
 file(COPY "fieldScreen.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+file(COPY "ball.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 
 # Link to the actual SDL3 library.
 target_link_libraries(Aerofootball PRIVATE SDL3_image::SDL3_image SDL3::SDL3)

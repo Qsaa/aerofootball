@@ -16,7 +16,8 @@
 
 static SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
-static SDL_Texture* field_screen = NULL;
+static SDL_Texture* field_texture = nullptr;
+static SDL_Texture* ball_texture = nullptr;
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
@@ -33,8 +34,17 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     {
         return SDL_APP_FAILURE;
     }
-    field_screen = SDL_CreateTextureFromSurface(renderer, png_surface);
+    field_texture = SDL_CreateTextureFromSurface(renderer, png_surface);
     SDL_DestroySurface(png_surface);
+    
+    SDL_Surface* ball = IMG_Load("../ball.png");
+    if (!ball)
+    {
+        return SDL_APP_FAILURE;
+    }
+    ball_texture = SDL_CreateTextureFromSurface(renderer, ball);
+    SDL_DestroySurface(ball);   
+    
     return SDL_APP_CONTINUE;
 }
 
@@ -69,7 +79,9 @@ SDL_AppResult SDL_AppIterate(void* appstate)
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    SDL_RenderTexture(renderer, field_screen, NULL, NULL);
+    SDL_RenderTexture(renderer, field_texture, nullptr, nullptr);
+    SDL_FRect rect = SDL_FRect{ x, y, 15, 15 };
+    SDL_RenderTexture(renderer, ball_texture, nullptr, &rect);
 
     //SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     //SDL_RenderDebugText(renderer, x, y, message);
@@ -82,7 +94,8 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 /* This function runs once at shutdown. */
 void SDL_AppQuit(void* appstate, SDL_AppResult result)
 {
-    SDL_DestroyTexture(field_screen);
+    SDL_DestroyTexture(field_texture);
+    SDL_DestroyTexture(ball_texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
