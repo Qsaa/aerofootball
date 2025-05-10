@@ -1,0 +1,15 @@
+{
+    "configurations": [
+        {
+            "name": "Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "preLaunchTask": "CMake: сборка",
+            "program": "${workspaceRoot}/build/Debug/Aerofootball",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "."
+        }
+    ],
+    "version": "2.0.0"
+}
