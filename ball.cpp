@@ -3,6 +3,7 @@
 #include <SDL3_image/SDL_image.h>
 
 
+
 Ball::Ball (SDL_Renderer* renderer, SDL_Surface* ball_surface): x_(0), y_(0), d_(100), vx_(5), vy_(5)
 {
     ball_texture = SDL_CreateTextureFromSurface(renderer, ball_surface);

@@ -7,18 +7,18 @@
 // TODO
 // SDL_Renderer* renderer - сделать глобальной переменной или занести в конструктор.
 
-class Ball
+class Player
 {
 public:
-    Ball(SDL_Renderer* renderer, SDL_Surface* ball_surface);
-    ~Ball();
+    Player(SDL_Renderer* renderer, SDL_Surface* player_surface);
+    ~Player();
 
 
     float getX();
     float getY();
     float getD();
 
-    std::tuple<float, float> wanna_go_to(float t = 0.05);
+    std::tuple<float, float> wanna_go_to(float t = 0.2);
     void set_new_position(float x, float y);
     void change_x_speed();
     void change_y_speed();
@@ -32,5 +32,5 @@ private:
     float vx_;
     float vy_;
 
-    SDL_Texture* ball_texture;
+    SDL_Texture* player_texture;
 };

@@ -14,12 +14,17 @@
 #include <SDL3_image/SDL_image.h>
 #include <SDL3/SDL_main.h>
 
+#include <cmath>
+
 #include "ball.hpp"
+#include "player.hpp"
+
 
 static SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
 static SDL_Texture* field_texture = nullptr;
 static Ball* ball = nullptr;
+static Player* player = nullptr; // TODO убрать отсюда
 
 
 /* This function runs once at startup. */
@@ -46,20 +51,48 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
         return SDL_APP_FAILURE;
     }
     ball = new Ball{renderer, ball_surface};
-    SDL_DestroySurface(ball_surface);    
+    SDL_DestroySurface(ball_surface);
+
+    SDL_Surface* player_surface = IMG_Load("../playerRed.png");
+    if (!player_surface)
+    {
+        return SDL_APP_FAILURE;
+    }
+    player = new Player{ renderer, player_surface };
+    SDL_DestroySurface(player_surface);
     
+    
+
     return SDL_APP_CONTINUE;
 }
 
 /* This function runs when a new event (mouse input, keypresses, etc) occurs. */
 SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
 {
-    if (event->type == SDL_EVENT_KEY_DOWN ||
-        event->type == SDL_EVENT_QUIT) {
-        if (event->key.key != SDLK_ESCAPE) {
-            return SDL_APP_CONTINUE;
+    if (event->type == SDL_EVENT_QUIT)
+    {
+        return SDL_APP_SUCCESS;
+    }
+    if (event->type == SDL_EVENT_KEY_DOWN)
+    {
+        // TODO одновременное нажатие двух клавиш
+        switch (event->key.key)
+        {
+        case SDLK_ESCAPE:
+            return SDL_APP_SUCCESS;
+        case SDLK_UP:
+            player->set_new_position(player->getX(), player->getY() - 15);
+            break;
+        case SDLK_RIGHT:
+            player->set_new_position(player->getX() + 15, player->getY());
+            break;
+        case SDLK_DOWN:
+            player->set_new_position(player->getX(), player->getY() + 15);
+            break;
+        case SDLK_LEFT:
+            player->set_new_position(player->getX() - 15, player->getY());
+            break;
         }
-        return SDL_APP_SUCCESS;  /* end the program, reporting success to the OS. */
     }
     return SDL_APP_CONTINUE;
 }
@@ -99,10 +132,20 @@ SDL_AppResult SDL_AppIterate(void* appstate)
     {
         ball->change_y_speed();
     }
+
+    if ((std::abs(ball->getX() - player->getX()) < 20) && (std::abs(ball->getY() - player->getY()) < 20))
+    {
+        ball->set_new_position(new_x + 50, new_y + 50);
+        ball->change_y_speed();
+    
+    }
+
     ball->set_new_position(new_x, new_y);
+    
     // ___ working engine finish
     
     ball->draw(renderer);
+    player->draw(renderer);
 
     SDL_RenderPresent(renderer);
 
