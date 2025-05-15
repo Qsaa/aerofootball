@@ -19,7 +19,7 @@ set(SDLIMAGE_VENDORED OFF)
 add_subdirectory(vendored/SDL_image EXCLUDE_FROM_ALL)
 
 # Create your game executable target as usual
-add_executable(Aerofootball WIN32 main.cpp)
+add_executable(Aerofootball WIN32 main.cpp ball.cpp)
 
 file(COPY "fieldScreen.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(COPY "ball.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")

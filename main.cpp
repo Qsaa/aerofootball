@@ -14,65 +14,13 @@
 #include <SDL3_image/SDL_image.h>
 #include <SDL3/SDL_main.h>
 
-#include <tuple>
-
-class Ball;
+#include "ball.hpp"
 
 static SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
 static SDL_Texture* field_texture = nullptr;
-static SDL_Texture* ball_texture = nullptr;
 static Ball* ball = nullptr;
 
-
-class Ball
-{
-public:
-    Ball() : x_(0), y_(0), d_(100), vx_(5), vy_(5)
-    {};
-
-    float getX()
-    {
-        return x_;
-    }
-    float getY()
-    {
-        return y_;
-    }
-    float getD()
-    {
-        return d_;
-    }
-
-
-    std::tuple<float, float> wanna_go_to(float t = 0.2)
-    {
-        return {vx_* t + x_, vy_ * t + y_ };
-    }
-
-    void set_new_position(float x, float y)
-    {
-        x_ = x;
-        y_ = y;
-    }
-
-    void change_x_speed()
-    {
-        vx_ *= -1;
-    }
-    void change_y_speed()
-    {
-        vy_ *= -1;
-    }
-
-private:
-    float x_;
-    float y_;
-    float d_;
-
-    float vx_;
-    float vy_;
-};
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
@@ -97,10 +45,8 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     {
         return SDL_APP_FAILURE;
     }
-    ball_texture = SDL_CreateTextureFromSurface(renderer, ball_surface);
-    SDL_DestroySurface(ball_surface); 
-
-    ball = new Ball{};
+    ball = new Ball{renderer, ball_surface};
+    SDL_DestroySurface(ball_surface);    
     
     return SDL_APP_CONTINUE;
 }
@@ -142,7 +88,9 @@ SDL_AppResult SDL_AppIterate(void* appstate)
     float new_y;
 
     std::tie(new_x, new_y) = ball->wanna_go_to();
-    // working engine start
+
+    // ___ working engine start
+
     if ((new_x + ball->getD()) > w || new_x < 0)
     {
         ball->change_x_speed();
@@ -151,14 +99,10 @@ SDL_AppResult SDL_AppIterate(void* appstate)
     {
         ball->change_y_speed();
     }
-    // working engine finish
     ball->set_new_position(new_x, new_y);
-
-    SDL_FRect rect = SDL_FRect{ ball->getX(), ball->getY(), ball->getD(), ball->getD() };
-    SDL_RenderTexture(renderer, ball_texture, nullptr, &rect);
-
-    //SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    //SDL_RenderDebugText(renderer, x, y, message);
+    // ___ working engine finish
+    
+    ball->draw(renderer);
 
     SDL_RenderPresent(renderer);
 
@@ -169,7 +113,6 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 void SDL_AppQuit(void* appstate, SDL_AppResult result)
 {
     SDL_DestroyTexture(field_texture);
-    SDL_DestroyTexture(ball_texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
