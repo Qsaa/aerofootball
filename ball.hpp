@@ -10,7 +10,7 @@
 class Ball
 {
 public:
-    Ball(SDL_Renderer* renderer, SDL_Surface* ball_surface);
+    Ball(SDL_Surface* ball_surface);
     ~Ball();
 
 
@@ -23,7 +23,7 @@ public:
     void change_x_speed();
     void change_y_speed();
 
-    void draw(SDL_Renderer* renderer);
+    void draw();
 private:
     float x_;
     float y_;

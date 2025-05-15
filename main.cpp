@@ -18,10 +18,8 @@
 
 #include "ball.hpp"
 #include "player.hpp"
+#include "globals.hpp"
 
-
-static SDL_Window* window = NULL;
-static SDL_Renderer* renderer = NULL;
 static SDL_Texture* field_texture = nullptr;
 static Ball* ball = nullptr;
 static Player* player = nullptr; // TODO убрать отсюда
@@ -50,7 +48,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     {
         return SDL_APP_FAILURE;
     }
-    ball = new Ball{renderer, ball_surface};
+    ball = new Ball{ball_surface};
     SDL_DestroySurface(ball_surface);
 
     SDL_Surface* player_surface = IMG_Load("../playerRed.png");
@@ -58,7 +56,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     {
         return SDL_APP_FAILURE;
     }
-    player = new Player{ renderer, player_surface };
+    player = new Player{player_surface };
     SDL_DestroySurface(player_surface);
     
     
@@ -144,8 +142,8 @@ SDL_AppResult SDL_AppIterate(void* appstate)
     
     // ___ working engine finish
     
-    ball->draw(renderer);
-    player->draw(renderer);
+    ball->draw();
+    player->draw();
 
     SDL_RenderPresent(renderer);
 

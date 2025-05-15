@@ -2,9 +2,10 @@
 
 #include <SDL3_image/SDL_image.h>
 
+#include "globals.hpp"
 
 
-Ball::Ball (SDL_Renderer* renderer, SDL_Surface* ball_surface): x_(0), y_(0), d_(100), vx_(5), vy_(5)
+Ball::Ball (SDL_Surface* ball_surface): x_(0), y_(0), d_(100), vx_(5), vy_(5)
 {
     ball_texture = SDL_CreateTextureFromSurface(renderer, ball_surface);
 }
@@ -48,7 +49,7 @@ void Ball::change_y_speed()
     vy_ *= -1;
 }
 
-void Ball::draw(SDL_Renderer* renderer)
+void Ball::draw()
 {
     SDL_FRect rect = SDL_FRect{ getX(), getY(), getD(), getD() };
     SDL_RenderTexture(renderer, ball_texture, nullptr, &rect);

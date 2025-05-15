@@ -10,7 +10,7 @@
 class Player
 {
 public:
-    Player(SDL_Renderer* renderer, SDL_Surface* player_surface);
+    Player(SDL_Surface* player_surface);
     ~Player();
 
 
@@ -23,7 +23,7 @@ public:
     void change_x_speed();
     void change_y_speed();
 
-    void draw(SDL_Renderer* renderer);
+    void draw();
 private:
     float x_;
     float y_;
