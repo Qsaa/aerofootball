@@ -15,15 +15,20 @@
 #include <SDL3/SDL_main.h>
 
 #include <cmath>
+#include <utility>
 
 #include "ball.hpp"
 #include "player.hpp"
 #include "globals.hpp"
+#include "texture.hpp"
+#include "position.hpp"
+
+#include "entity.hpp"
 
 static SDL_Texture* field_texture = nullptr;
 static Ball* ball = nullptr;
 static Player* player = nullptr; // TODO убрать отсюда
-
+static Entity entities;
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
@@ -36,19 +41,19 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
 
     // load the PNG
     auto png_surface = IMG_Load("../fieldScreen.png");
-    if (!png_surface) 
+    if (!png_surface)
     {
         return SDL_APP_FAILURE;
     }
     field_texture = SDL_CreateTextureFromSurface(renderer, png_surface);
     SDL_DestroySurface(png_surface);
-    
+
     SDL_Surface* ball_surface = IMG_Load("../ball.png");
     if (!ball_surface)
     {
         return SDL_APP_FAILURE;
     }
-    ball = new Ball{ball_surface};
+    ball = new Ball{ ball_surface };
     SDL_DestroySurface(ball_surface);
 
     SDL_Surface* player_surface = IMG_Load("../playerRed.png");
@@ -56,10 +61,12 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     {
         return SDL_APP_FAILURE;
     }
-    player = new Player{player_surface };
+    player = new Player{ player_surface };
     SDL_DestroySurface(player_surface);
-    
-    
+
+    //Texture texture{field_texture};
+    entities.addComponent(Texture{field_texture});
+    entities.addComponent(Position{0, 0});
 
     return SDL_APP_CONTINUE;
 }
@@ -113,14 +120,22 @@ SDL_AppResult SDL_AppIterate(void* appstate)
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    SDL_RenderTexture(renderer, field_texture, nullptr, nullptr);
+    //SDL_RenderTexture(renderer, field_texture, nullptr, nullptr);
 
+    // ___ DRAW SYSTEM start
+    auto tex = entities.getComponent<Texture>();
+    auto pos = entities.getComponent<Position>();
+    auto rect = SDL_FRect{ pos->x_, pos->y_, 100, 100 };
+    SDL_RenderTexture(renderer, tex->texture_, nullptr, &rect);
+    /// ___ DRAW SYSTEM finish
+
+    // ___ working engine start
+    
     float new_x;
     float new_y;
 
     std::tie(new_x, new_y) = ball->wanna_go_to();
-
-    // ___ working engine start
+      
 
     if ((new_x + ball->getD()) > w || new_x < 0)
     {
