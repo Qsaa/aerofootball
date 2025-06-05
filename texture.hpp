@@ -9,6 +9,7 @@ public:
 	Texture(SDL_Texture * texture);
 	Texture(const Texture& texture);
 	Texture(Texture&& texture) noexcept;
+	~Texture();
 public:
 	SDL_Texture* texture_ = nullptr;
 };

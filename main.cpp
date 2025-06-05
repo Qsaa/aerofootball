@@ -16,6 +16,8 @@
 
 #include <cmath>
 #include <utility>
+#include <vector>
+#include <array>
 
 #include "ball.hpp"
 #include "player.hpp"
@@ -25,10 +27,10 @@
 
 #include "entity.hpp"
 
-static SDL_Texture* field_texture = nullptr;
 static Ball* ball = nullptr;
 static Player* player = nullptr; // TODO убрать отсюда
-static Entity entities;
+
+std::array<Entity, 2> entities;
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
@@ -45,8 +47,12 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     {
         return SDL_APP_FAILURE;
     }
-    field_texture = SDL_CreateTextureFromSurface(renderer, png_surface);
+    SDL_Texture* field_texture = SDL_CreateTextureFromSurface(renderer, png_surface);
     SDL_DestroySurface(png_surface);
+    entities[0].addComponent(Texture{field_texture});
+    entities[0].addComponent(Position{0, 0});
+    
+
 
     SDL_Surface* ball_surface = IMG_Load("../ball.png");
     if (!ball_surface)
@@ -56,17 +62,17 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     ball = new Ball{ ball_surface };
     SDL_DestroySurface(ball_surface);
 
+
+
     SDL_Surface* player_surface = IMG_Load("../playerRed.png");
     if (!player_surface)
     {
         return SDL_APP_FAILURE;
     }
-    player = new Player{ player_surface };
+    SDL_Texture* player_texture = SDL_CreateTextureFromSurface(renderer, player_surface);
     SDL_DestroySurface(player_surface);
-
-    //Texture texture{field_texture};
-    entities.addComponent(Texture{field_texture});
-    entities.addComponent(Position{0, 0});
+    entities[1].addComponent(Texture{ player_texture });
+    entities[1].addComponent(Position{ 0, 0 });    
 
     return SDL_APP_CONTINUE;
 }
@@ -80,22 +86,23 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
     }
     if (event->type == SDL_EVENT_KEY_DOWN)
     {
+        Position* pos = entities[1].getComponent<Position>();
         // TODO одновременное нажатие двух клавиш
         switch (event->key.key)
         {
         case SDLK_ESCAPE:
             return SDL_APP_SUCCESS;
         case SDLK_UP:
-            player->set_new_position(player->getX(), player->getY() - 15);
+            pos->y_ = pos->y_ - 15;
             break;
         case SDLK_RIGHT:
-            player->set_new_position(player->getX() + 15, player->getY());
+            pos->x_ += 15;
             break;
         case SDLK_DOWN:
-            player->set_new_position(player->getX(), player->getY() + 15);
+            pos->y_ += 15;
             break;
         case SDLK_LEFT:
-            player->set_new_position(player->getX() - 15, player->getY());
+            pos->x_ -= 15;
             break;
         }
     }
@@ -120,13 +127,14 @@ SDL_AppResult SDL_AppIterate(void* appstate)
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    //SDL_RenderTexture(renderer, field_texture, nullptr, nullptr);
-
     // ___ DRAW SYSTEM start
-    auto tex = entities.getComponent<Texture>();
-    auto pos = entities.getComponent<Position>();
-    auto rect = SDL_FRect{ pos->x_, pos->y_, 100, 100 };
-    SDL_RenderTexture(renderer, tex->texture_, nullptr, &rect);
+    for(auto& entity : entities)
+    {
+        auto tex = entity.getComponent<Texture>();
+        auto pos = entity.getComponent<Position>();
+        auto rect = SDL_FRect{ pos->x_, pos->y_, static_cast<float>(w) , static_cast<float>(h) };
+        SDL_RenderTexture(renderer, tex->texture_, nullptr, &rect);
+    }
     /// ___ DRAW SYSTEM finish
 
     // ___ working engine start
@@ -146,7 +154,8 @@ SDL_AppResult SDL_AppIterate(void* appstate)
         ball->change_y_speed();
     }
 
-    if ((std::abs(ball->getX() - player->getX()) < 20) && (std::abs(ball->getY() - player->getY()) < 20))
+    Position* pos = entities[1].getComponent<Position>();
+    if ((std::abs(ball->getX() - pos->x_) < 20) && (std::abs(ball->getY() - pos->y_) < 20))
     {
         ball->set_new_position(new_x + 50, new_y + 50);
         ball->change_y_speed();
@@ -158,7 +167,6 @@ SDL_AppResult SDL_AppIterate(void* appstate)
     // ___ working engine finish
     
     ball->draw();
-    player->draw();
 
     SDL_RenderPresent(renderer);
 
@@ -168,7 +176,6 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 /* This function runs once at shutdown. */
 void SDL_AppQuit(void* appstate, SDL_AppResult result)
 {
-    SDL_DestroyTexture(field_texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();

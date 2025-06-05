@@ -12,3 +12,8 @@ Texture::Texture(Texture&& texture) noexcept
 	texture_ = texture.texture_;
 	texture.texture_ = nullptr;
 }
+
+Texture::~Texture()
+{
+	SDL_DestroyTexture(texture_);
+}
