@@ -26,9 +26,13 @@
 #include "components/texture.hpp"
 #include "components/position.hpp"
 #include "components/size.hpp"
+#include "components/velocity.hpp"
 
+// ==========
+void draw(Entities&);
+void engine(Entities&);
+// =========
 
-std::array<Entity, 3> entities;
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
@@ -65,6 +69,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[2].addComponent(Texture{ball_texture});
     entities[2].addComponent(Position{});
     entities[2].addComponent(Size{ 100, 100 });
+    entities[2].addComponent(Velocity{ 5, 5 });
 
 
 
@@ -114,13 +119,6 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
     return SDL_APP_CONTINUE;
 }
 
-// ___ working engine start. part 1
-float vx = 5;
-float vy = 5;
-
-float t = 0.05;
-// ___ working engine finish. part 1
-
 /* This function runs once per frame, and is the heart of the program. */
 SDL_AppResult SDL_AppIterate(void* appstate)
 {
@@ -128,57 +126,9 @@ SDL_AppResult SDL_AppIterate(void* appstate)
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    // ___ DRAW SYSTEM start 
-    for(auto& entity : entities)
-    {
-        auto tex = entity.getComponent<Texture>();
-        auto pos = entity.getComponent<Position>();
-        auto size = entity.getComponent<Size>();
-        auto rect = SDL_FRect{ pos->x_, pos->y_, size->w_, size->h_};
-        SDL_RenderTexture(renderer, tex->texture_, nullptr, &rect);
-    }
-    /// ___ DRAW SYSTEM finish
-
-    // ___ working engine start.  part2
-    int w = 0, h = 0;
-
-    SDL_GetRenderOutputSize(renderer, &w, &h);
-    
-    float new_x;
-    float new_y;
-    
-    // нужно подумать над скоростью, возможно надо засунуть в компоненты
-
-    auto position_ball = entities[2].getComponent<Position>();
-    auto size_ball = entities[2].getComponent<Size>();
-
-    new_x = position_ball->x_ + vx * t;
-    new_y = position_ball->y_ + vy * t;
-      
-
-    if ((new_x + size_ball->w_) > w || new_x < 0)
-    {
-        vx *= -1;
-    }
-    if ((new_y + size_ball->h_) > h || new_y < 0)
-    {
-        vy *= -1;
-    }
-
-    Position* pos_player = entities[1].getComponent<Position>();
-    if ((std::abs(position_ball->x_ - pos_player->x_) < 20) && (std::abs(position_ball->y_ - pos_player->y_) < 20))
-    {
-        position_ball->x_ = new_x + 50;
-        position_ball->y_ = new_y + 50;
-        vy *= -1;
-    
-    }
-
-    position_ball->x_ = new_x;
-    position_ball->y_ = new_y;
-    
-    // ___ working engine finish. part 2
-
+    draw(entities);
+    engine(entities);
+   
     SDL_RenderPresent(renderer);
 
     return SDL_APP_CONTINUE;
