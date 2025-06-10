@@ -23,9 +23,9 @@
 
 #include "globals.hpp"
 
-#include "texture.hpp"
-#include "position.hpp"
-#include "size.hpp"
+#include "components/texture.hpp"
+#include "components/position.hpp"
+#include "components/size.hpp"
 
 
 std::array<Entity, 3> entities;

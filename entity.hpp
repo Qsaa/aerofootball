@@ -5,8 +5,7 @@
 #include <typeinfo>
 #include <memory>
 
-#include "component.hpp"
-#include "texture.hpp"
+#include "components/component.hpp"
 
 class Entity
 {
