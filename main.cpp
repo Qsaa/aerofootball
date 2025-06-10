@@ -19,16 +19,18 @@
 #include <vector>
 #include <array>
 
+#include "entity.hpp"
 #include "ball.hpp"
-#include "player.hpp"
+
 #include "globals.hpp"
+
 #include "texture.hpp"
 #include "position.hpp"
+#include "size.hpp"
 
-#include "entity.hpp"
+
 
 static Ball* ball = nullptr;
-static Player* player = nullptr; // TODO убрать отсюда
 
 std::array<Entity, 2> entities;
 
@@ -40,7 +42,9 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
         SDL_Log("Couldn't create window and renderer: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
-
+    
+    int w = 0, h = 0;
+    SDL_GetRenderOutputSize(renderer, &w, &h);
     // load the PNG
     auto png_surface = IMG_Load("../fieldScreen.png");
     if (!png_surface)
@@ -51,6 +55,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     SDL_DestroySurface(png_surface);
     entities[0].addComponent(Texture{field_texture});
     entities[0].addComponent(Position{0, 0});
+    entities[0].addComponent(Size{w, h});
     
 
 
@@ -72,7 +77,8 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     SDL_Texture* player_texture = SDL_CreateTextureFromSurface(renderer, player_surface);
     SDL_DestroySurface(player_surface);
     entities[1].addComponent(Texture{ player_texture });
-    entities[1].addComponent(Position{ 0, 0 });    
+    entities[1].addComponent(Position{ 0, 0 }); 
+    entities[1].addComponent(Size{ 100, 100 });
 
     return SDL_APP_CONTINUE;
 }
@@ -112,17 +118,6 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
 /* This function runs once per frame, and is the heart of the program. */
 SDL_AppResult SDL_AppIterate(void* appstate)
 {
-    const char* message = "Aerofootball";
-    int w = 0, h = 0;
-    float x, y;
-    const float scale = 1.0f;
-
-    /* Center the message and scale it up */
-    SDL_GetRenderOutputSize(renderer, &w, &h);
-    SDL_SetRenderScale(renderer, scale, scale);
-    x = (w / scale) / 2;
-    y = (h / scale) / 2;
-
     /* Draw the message */
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -132,12 +127,16 @@ SDL_AppResult SDL_AppIterate(void* appstate)
     {
         auto tex = entity.getComponent<Texture>();
         auto pos = entity.getComponent<Position>();
-        auto rect = SDL_FRect{ pos->x_, pos->y_, static_cast<float>(w) , static_cast<float>(h) };
+        auto size = entity.getComponent<Size>();
+        auto rect = SDL_FRect{ pos->x_, pos->y_, size->w_, size->h_};
         SDL_RenderTexture(renderer, tex->texture_, nullptr, &rect);
     }
     /// ___ DRAW SYSTEM finish
 
     // ___ working engine start
+    int w = 0, h = 0;
+
+    SDL_GetRenderOutputSize(renderer, &w, &h);
     
     float new_x;
     float new_y;
