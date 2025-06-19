@@ -8,5 +8,5 @@
 extern SDL_Window* window;
 extern SDL_Renderer* renderer;
 
-using Entities = std::array<Entity, 3>;
+using Entities = std::array<Entity, 4>;
 extern Entities entities;

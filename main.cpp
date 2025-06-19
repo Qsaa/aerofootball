@@ -27,6 +27,7 @@
 #include "components/position.hpp"
 #include "components/size.hpp"
 #include "components/velocity.hpp"
+#include "components/collision.hpp"
 
 // ==========
 void draw(Entities&);
@@ -58,7 +59,6 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[0].addComponent(Size{w, h});
     
 
-
     SDL_Surface* ball_surface = IMG_Load("../ball.png");
     if (!ball_surface)
     {
@@ -67,10 +67,10 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     SDL_Texture* ball_texture = SDL_CreateTextureFromSurface(renderer, ball_surface);
     SDL_DestroySurface(ball_surface);
     entities[2].addComponent(Texture{ball_texture});
-    entities[2].addComponent(Position{});
+    entities[2].addComponent(Position{300, 300});
     entities[2].addComponent(Size{ 100, 100 });
     entities[2].addComponent(Velocity{ 5, 5 });
-
+    entities[2].addComponent(Collision{true});
 
 
     SDL_Surface* player_surface = IMG_Load("../playerRed.png");
@@ -81,8 +81,18 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     SDL_Texture* player_texture = SDL_CreateTextureFromSurface(renderer, player_surface);
     SDL_DestroySurface(player_surface);
     entities[1].addComponent(Texture{ player_texture });
-    entities[1].addComponent(Position{ 0, 0 }); 
+    entities[1].addComponent(Position{}); 
     entities[1].addComponent(Size{ 100, 100 });
+    entities[1].addComponent(Velocity{ 0, 0 });
+    entities[1].addComponent(Collision{});
+
+    entities[3].addComponent(Texture{ player_texture });
+    entities[3].addComponent(Position{ 1000, 500 });
+    entities[3].addComponent(Size{ 100, 100 });
+    entities[3].addComponent(Velocity{ 0, 0 });
+    entities[3].addComponent(Collision{});
+
+
 
     return SDL_APP_CONTINUE;
 }
@@ -96,25 +106,35 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
     }
     if (event->type == SDL_EVENT_KEY_DOWN)
     {
-        Position* pos = entities[1].getComponent<Position>();
+        Velocity* vel = entities[1].getComponent<Velocity>();
         // TODO одновременное нажатие двух клавиш
         switch (event->key.key)
         {
         case SDLK_ESCAPE:
             return SDL_APP_SUCCESS;
         case SDLK_UP:
-            pos->y_ = pos->y_ - 15;
+            vel->vy_ = -20;
+            vel->vx_ = 0;
             break;
         case SDLK_RIGHT:
-            pos->x_ += 15;
+            vel->vx_ = 20;
+            vel->vy_ = 0;
             break;
         case SDLK_DOWN:
-            pos->y_ += 15;
+            vel->vy_ = 20;
+            vel->vx_ = 0;
             break;
         case SDLK_LEFT:
-            pos->x_ -= 15;
+            vel->vx_ = -20;
+            vel->vy_ = 0;
             break;
         }
+    }
+    else if (event->type == SDL_EVENT_KEY_UP)
+    {
+        Velocity* vel = entities[1].getComponent<Velocity>();
+        vel->vx_ = 0;
+        vel->vy_ = 0;
     }
     return SDL_APP_CONTINUE;
 }
