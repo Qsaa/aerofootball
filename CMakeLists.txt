@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
+
 project(Aerofootball)
 
 # set the output directory for built objects.
@@ -19,7 +20,8 @@ set(SDLIMAGE_VENDORED OFF)
 add_subdirectory(vendored/SDL_image EXCLUDE_FROM_ALL)
 
 # Create your game executable target as usual
-add_executable(Aerofootball WIN32 "main.cpp"   "globals.cpp"  "entity.cpp" "components/texture.cpp" "components/position.cpp" "components/size.cpp" "components/velocity.cpp" "draw.cpp" "engine.cpp")
+add_executable(Aerofootball WIN32 "main.cpp"   "globals.cpp"  "entity.cpp" "components/texture.cpp" "components/position.cpp" "components/size.cpp" "components/velocity.cpp" "draw.cpp" "engine.cpp" "components/collision.cpp")
+target_compile_features(Aerofootball PRIVATE cxx_std_20)
 
 file(COPY "assets/fieldScreen.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(COPY "assets/ball.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
