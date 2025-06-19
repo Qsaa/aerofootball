@@ -14,9 +14,15 @@ public:
 	template<typename U>
 	void addComponent(U&& component);
 	
-	// TODO  подумать над динамической типизации
 	template<typename U>
 	U* getComponent();
+
+	template<typename... Types >
+	bool hasComponent();
+
+private:
+	bool hasComponent();
+
 private:
 	std::unordered_map<size_t, std::unique_ptr<Component>> components_;
 
@@ -25,10 +31,17 @@ private:
 template<typename U>
 inline U* Entity::getComponent()
 {
-	Component* tmp = components_.at(typeid(U).hash_code()).get();
-	return static_cast<U*>(components_.at(typeid(U).hash_code()).get());
-	//auto it = components_.find((typeid(U).hash_code()));
-	//return it != components_.end() ? static_cast<U*>(it->second.get()) : nullptr;
+	size_t hash_code = typeid(U).hash_code();
+	return components_.contains(hash_code) ? static_cast<U*>(components_.at(hash_code).get()) : nullptr;
+}
+
+inline bool Entity::hasComponent() {
+	return true;
+}
+
+template<typename... Types>
+inline bool Entity::hasComponent() {
+	return ((components_.contains(typeid(Types).hash_code())   ) && ...);  // Fold expression
 }
 
 template<typename U>
@@ -36,4 +49,3 @@ void Entity::addComponent(U&& component)
 {
 	components_[typeid(component).hash_code()] = std::make_unique<U>(std::forward<U>(component));
 }
-
