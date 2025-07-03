@@ -41,6 +41,7 @@ void engine(Entities& entities)
         float new_x = pos->x_ + velocity->vx_ * t;
         float new_y = pos->y_ + velocity->vy_ * t;
 
+        // Collision to a border of the screen
         if ((new_x + size->w_) > w || new_x < 0)
         {
             if (collision->bounce_)
@@ -72,23 +73,41 @@ void engine(Entities& entities)
             {
                 continue;
             }
-
-            Point point {new_x + size->w_ / 2.0f, new_y + size->h_ / 2.0f};
-            float distance = point.distance(getCenter(other));
+            
+            
+            Point pointNew {new_x + size->w_ / 2.0f, new_y + size->h_ / 2.0f};
+            Point pointStatic = getCenter(other);
+            float distance = pointNew.distance(pointStatic);
             auto other_size = other.getComponent<Size>();
             if (distance <= (size->w_ + other_size->w_) / 2.0)
             {
                 if (collision->bounce_)
                 {
-                    // TODO: запариться и сделать
-                    velocity->invert_vy();
-                    velocity->invert_vx();
+                    // Есть две точки. Ищем угол к оси Х
+                    float sinTetta = (pointStatic.y_ - pointNew.y_) / distance;
+                    float cosTetta = (pointStatic.x_ - pointNew.x_) / distance;
+
+                    // Преобразовываем систему координат
+                    float velocity2vX = velocity->vx_ * cosTetta + velocity->vy_ * sinTetta;
+                    float velosity2vY = -velocity->vx_ * sinTetta + velocity->vy_ * cosTetta;
+
+                    //Отражение
+                    float velocity2vX_reflect = -velocity2vX;
+                    float velocity2vY_reflect = velosity2vY;
+
+                    // Возвращаем систему координат // аккуратно 
+                    sinTetta = -sinTetta;
+                    cosTetta = cosTetta;
+
+                    float vxNew = velocity2vX_reflect * cosTetta + velocity2vY_reflect * sinTetta;
+                    float vyNew = -velocity2vX_reflect * sinTetta + velocity2vY_reflect * cosTetta;
+
+
+                    velocity->vx_ = vxNew;
+                    velocity->vy_ = vyNew;
                 }
-                else
-                {
-                    new_x = pos->x_;
-                    new_y = pos->y_;
-                }
+                new_x = pos->x_;
+                new_y = pos->y_;
             }
         }
 
