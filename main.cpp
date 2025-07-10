@@ -28,6 +28,7 @@
 #include "components/size.hpp"
 #include "components/velocity.hpp"
 #include "components/collision.hpp"
+#include "components/control.hpp"
 
 // ==========
 void draw(Entities&);
@@ -85,6 +86,8 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[1].addComponent(Size{ 100, 100 });
     entities[1].addComponent(Velocity{ 0, 0 });
     entities[1].addComponent(Collision{});
+    entities[1].addComponent(Control{});
+
 
     entities[3].addComponent(Texture{ player_texture });
     entities[3].addComponent(Position{ 1000, 500 });
@@ -100,42 +103,87 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
 /* This function runs when a new event (mouse input, keypresses, etc) occurs. */
 SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
 {
-    if (event->type == SDL_EVENT_QUIT)
+    if (event->type == SDL_EVENT_QUIT || (event->type == SDL_EVENT_KEY_DOWN && event->key.key == SDLK_ESCAPE))
     {
         return SDL_APP_SUCCESS;
     }
-    if (event->type == SDL_EVENT_KEY_DOWN)
+
+    for (auto& entity : entities)
     {
-        Velocity* vel = entities[1].getComponent<Velocity>();
-        // TODO одновременное нажатие двух клавиш
+        if (!entity.hasComponent<Control, Velocity>())
+        {
+            continue;
+        }
+        Control* control = entity.getComponent<Control>();
         switch (event->key.key)
         {
-        case SDLK_ESCAPE:
-            return SDL_APP_SUCCESS;
-        case SDLK_UP:
-            vel->vy_ = -20;
-            vel->vx_ = 0;
-            break;
-        case SDLK_RIGHT:
-            vel->vx_ = 20;
-            vel->vy_ = 0;
-            break;
-        case SDLK_DOWN:
-            vel->vy_ = 20;
-            vel->vx_ = 0;
-            break;
-        case SDLK_LEFT:
-            vel->vx_ = -20;
-            vel->vy_ = 0;
-            break;
+            case SDLK_UP:
+                if (event->type == SDL_EVENT_KEY_DOWN)
+                {
+                    control->vertical_ = -1;
+                }
+                else if (event->type == SDL_EVENT_KEY_UP)
+                {
+                    control->vertical_ = 0;
+                }
+                break;
+            case SDLK_RIGHT:
+                if (event->type == SDL_EVENT_KEY_DOWN)
+                {
+                    control->horizontal_ = 1;
+                }
+                else if (event->type == SDL_EVENT_KEY_UP)
+                {
+                    control->horizontal_ = 0;
+                }
+                break;
+            case SDLK_DOWN:
+                if (event->type == SDL_EVENT_KEY_DOWN)
+                {
+                    control->vertical_ = 1;
+                }
+                else if (event->type == SDL_EVENT_KEY_UP)
+                {
+                    control->vertical_ = 0;
+                }
+                break;
+            case SDLK_LEFT:
+                if (event->type == SDL_EVENT_KEY_DOWN)
+                {
+                    control->horizontal_ = -1;
+                }
+                else if (event->type == SDL_EVENT_KEY_UP)
+                {
+                    control->horizontal_ = 0;
+                }
+                break;
         }
+
+        Velocity* vel = entity.getComponent<Velocity>();
+        float hor = control->horizontal_;
+        float ver = control->vertical_;
+
+        vel->vx_ = control->horizontal_ * control->speed_;
+        vel->vy_ = control->vertical_ * control->speed_;
+        if (std::abs(hor) + std::abs(ver) > 1.98)
+        {
+            vel->vx_ *= sqrt(2.0) / 2.0;
+            vel->vy_ *= sqrt(2.0) / 2.0;
+        }
+
+        // TODO: —ан€, соберись! ѕодумай, как сделать красиво
+        //float hor = control->horizontal_;
+        //float ver = control->vertical_;
+        //float v_control = std::sqrt(hor * hor + ver * ver);
+
+        //float k = 1/v_control
+        //if (k_velocity > 1.0)
+        //{
+        //    vel->vx_ = control->horizontal_ * control->speed_;// / k_velocity;
+        //    vel->vy_ = control->vertical_ * control->speed_;// / k_velocity;
+        //}
     }
-    else if (event->type == SDL_EVENT_KEY_UP)
-    {
-        Velocity* vel = entities[1].getComponent<Velocity>();
-        vel->vx_ = 0;
-        vel->vy_ = 0;
-    }
+
     return SDL_APP_CONTINUE;
 }
 
