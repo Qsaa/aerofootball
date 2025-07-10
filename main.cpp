@@ -74,14 +74,14 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[2].addComponent(Collision{true});
 
 
-    SDL_Surface* player_surface = IMG_Load("../playerRed.png");
-    if (!player_surface)
+    SDL_Surface* playerRedSurface = IMG_Load("../playerRed.png");
+    if (!playerRedSurface)
     {
         return SDL_APP_FAILURE;
     }
-    SDL_Texture* player_texture = SDL_CreateTextureFromSurface(renderer, player_surface);
-    SDL_DestroySurface(player_surface);
-    entities[1].addComponent(Texture{ player_texture });
+    SDL_Texture* playerRedTexture = SDL_CreateTextureFromSurface(renderer, playerRedSurface);
+    SDL_DestroySurface(playerRedSurface);
+    entities[1].addComponent(Texture{ playerRedTexture });
     entities[1].addComponent(Position{}); 
     entities[1].addComponent(Size{ 100, 100 });
     entities[1].addComponent(Velocity{ 0, 0 });
@@ -89,12 +89,18 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[1].addComponent(Control{});
 
 
-    entities[3].addComponent(Texture{ player_texture });
+    SDL_Surface* playerBlueSurface = IMG_Load("../playerBlue.png");
+    if (!playerBlueSurface)
+    {
+        return SDL_APP_FAILURE;
+    }
+    SDL_Texture* playerBlueTexture = SDL_CreateTextureFromSurface(renderer, playerBlueSurface);
+    SDL_DestroySurface(playerBlueSurface);
+    entities[3].addComponent(Texture{ playerBlueTexture });
     entities[3].addComponent(Position{ 1000, 500 });
     entities[3].addComponent(Size{ 100, 100 });
     entities[3].addComponent(Velocity{ 0, 0 });
     entities[3].addComponent(Collision{});
-
 
 
     return SDL_APP_CONTINUE;

@@ -26,6 +26,7 @@ target_compile_features(Aerofootball PRIVATE cxx_std_20)
 file(COPY "assets/fieldScreen.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(COPY "assets/ball.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(COPY "assets/playerRed.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+file(COPY "assets/playerBlue.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 
 # Link to the actual SDL3 library.
 target_link_libraries(Aerofootball PRIVATE SDL3_image::SDL3_image SDL3::SDL3)
