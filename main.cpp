@@ -33,6 +33,7 @@
 // ==========
 void draw(Entities&);
 void engine(Entities&);
+void control(Entities&);
 // =========
 
 
@@ -70,7 +71,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[2].addComponent(Texture{ball_texture});
     entities[2].addComponent(Position{300, 300});
     entities[2].addComponent(Size{ 100, 100 });
-    entities[2].addComponent(Velocity{ 5, 5 });
+    entities[2].addComponent(Velocity{ 15, 15 });
     entities[2].addComponent(Collision{true});
 
 
@@ -86,7 +87,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[1].addComponent(Size{ 100, 100 });
     entities[1].addComponent(Velocity{ 0, 0 });
     entities[1].addComponent(Collision{});
-    entities[1].addComponent(Control{});
+    entities[1].addComponent(Control{SDLK_UP, SDLK_RIGHT, SDLK_DOWN, SDLK_LEFT});
 
 
     SDL_Surface* playerBlueSurface = IMG_Load("../playerBlue.png");
@@ -101,6 +102,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[3].addComponent(Size{ 100, 100 });
     entities[3].addComponent(Velocity{ 0, 0 });
     entities[3].addComponent(Collision{});
+    entities[3].addComponent(Control{SDLK_W, SDLK_D, SDLK_S, SDLK_A});
 
 
     return SDL_APP_CONTINUE;
@@ -114,80 +116,13 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
         return SDL_APP_SUCCESS;
     }
 
-    for (auto& entity : entities)
+    if (event->type == SDL_EVENT_KEY_DOWN)
     {
-        if (!entity.hasComponent<Control, Velocity>())
-        {
-            continue;
-        }
-        Control* control = entity.getComponent<Control>();
-        switch (event->key.key)
-        {
-            case SDLK_UP:
-                if (event->type == SDL_EVENT_KEY_DOWN)
-                {
-                    control->vertical_ = -1;
-                }
-                else if (event->type == SDL_EVENT_KEY_UP)
-                {
-                    control->vertical_ = 0;
-                }
-                break;
-            case SDLK_RIGHT:
-                if (event->type == SDL_EVENT_KEY_DOWN)
-                {
-                    control->horizontal_ = 1;
-                }
-                else if (event->type == SDL_EVENT_KEY_UP)
-                {
-                    control->horizontal_ = 0;
-                }
-                break;
-            case SDLK_DOWN:
-                if (event->type == SDL_EVENT_KEY_DOWN)
-                {
-                    control->vertical_ = 1;
-                }
-                else if (event->type == SDL_EVENT_KEY_UP)
-                {
-                    control->vertical_ = 0;
-                }
-                break;
-            case SDLK_LEFT:
-                if (event->type == SDL_EVENT_KEY_DOWN)
-                {
-                    control->horizontal_ = -1;
-                }
-                else if (event->type == SDL_EVENT_KEY_UP)
-                {
-                    control->horizontal_ = 0;
-                }
-                break;
-        }
-
-        Velocity* vel = entity.getComponent<Velocity>();
-        float hor = control->horizontal_;
-        float ver = control->vertical_;
-
-        vel->vx_ = control->horizontal_ * control->speed_;
-        vel->vy_ = control->vertical_ * control->speed_;
-        if (std::abs(hor) + std::abs(ver) > 1.98)
-        {
-            vel->vx_ *= sqrt(2.0) / 2.0;
-            vel->vy_ *= sqrt(2.0) / 2.0;
-        }
-
-        // TODO: Саня, соберись! Подумай, как сделать красиво
-        //float hor = control->horizontal_;
-        //float ver = control->vertical_;
-        //float v_control = std::sqrt(hor * hor + ver * ver);
-
-        //float k = 1/v_control
-        //if (k_velocity > 1.0)
-        //{
-        //    vel->vx_ = control->horizontal_ * control->speed_;// / k_velocity;
-        //    vel->vy_ = control->vertical_ * control->speed_;// / k_velocity;
-        //}
+        input.keys[event->key.key] = true;
+    }
+    else if (event->type == SDL_EVENT_KEY_UP)
+    {
+        input.keys[event->key.key] = false;
     }
 
     return SDL_APP_CONTINUE;
@@ -202,6 +137,7 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 
     draw(entities);
     engine(entities);
+    control(entities);
    
     SDL_RenderPresent(renderer);
 
