@@ -29,6 +29,7 @@
 #include "components/velocity.hpp"
 #include "components/collision.hpp"
 #include "components/control.hpp"
+#include "components/debug.hpp"
 
 // ==========
 void draw(Entities&);
@@ -87,6 +88,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[1].addComponent(Size{ 100, 100 });
     entities[1].addComponent(Velocity{ 0, 0 });
     entities[1].addComponent(Collision{});
+    entities[1].addComponent(Debug{ "RED_PLAYER" });
     entities[1].addComponent(Control{SDLK_UP, SDLK_RIGHT, SDLK_DOWN, SDLK_LEFT});
 
 
