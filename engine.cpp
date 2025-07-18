@@ -3,7 +3,7 @@
 #include "components/velocity.hpp"
 #include "components/position.hpp"
 #include "components/size.hpp"
-#include "components/collision.hpp"
+#include "components/collider.hpp"
 #include "point.hpp"
 #include "components/debug.hpp"
 
@@ -29,7 +29,7 @@ void engine(Entities& entities)
     
     for (auto& entity : entities)
     {
-        if (!entity.hasComponent<Position, Size, Velocity, Collision>())
+        if (!entity.hasComponent<Position, Size, Velocity, Collider>())
         {
             continue;
         }
@@ -37,7 +37,7 @@ void engine(Entities& entities)
         auto velocity = entity.getComponent<Velocity>();
         auto pos = entity.getComponent<Position>();
         auto size = entity.getComponent<Size>();
-        auto collision = entity.getComponent<Collision>();
+        auto collider = entity.getComponent<Collider>();
         
         float new_x = pos->x_ + velocity->vx_ * t;
         float new_y = pos->y_ + velocity->vy_ * t;
@@ -45,7 +45,7 @@ void engine(Entities& entities)
         // Collision to a border of the screen
         /*if ((new_x + size->w_) > w || new_x < 0)
         {
-            if (collision->bounce_)
+            if (collider->bounce_)
             {
                 velocity->invert_vx();
             }
@@ -57,7 +57,7 @@ void engine(Entities& entities)
         }
         if ((new_y + size->h_) > h || new_y < 0)
         {
-            if (collision->bounce_)
+            if (collider->bounce_)
             {
                 velocity->invert_vy();
             }
@@ -70,11 +70,11 @@ void engine(Entities& entities)
 
         for (auto& other : entities)
         {
-            if (&entity == &other || !other.hasComponent<Collision, Position, Size>())
+            if (&entity == &other || !other.hasComponent<Collider, Position, Size>())
             {
                 continue;
             }
-            auto otherCollision = other.getComponent<Collision>();
+            auto otherCollision = other.getComponent<Collider>();
             if (otherCollision->isRectangle_)
             {
                 auto otherPos = other.getComponent<Position>();
@@ -96,7 +96,7 @@ void engine(Entities& entities)
                 {
                     if (deltaByY < deltaByX)
                     {
-                        if (collision->bounce_)
+                        if (collider->bounce_)
                         {
                             velocity->invert_vy();
                         }
@@ -108,7 +108,7 @@ void engine(Entities& entities)
                     }
                     else
                     {
-                        if (collision->bounce_)
+                        if (collider->bounce_)
                         {
                             velocity->invert_vx();
                         }
@@ -128,7 +128,7 @@ void engine(Entities& entities)
                 auto other_size = other.getComponent<Size>();
                 if (distance <= (size->w_ + other_size->w_) / 2.0)
                 {
-                    if (collision->bounce_)
+                    if (collider->bounce_)
                     {
                         // Есть две точки. Ищем угол к оси Х
                         float sinTetta = (pointStatic.y_ - pointNew.y_) / distance;
