@@ -1,4 +1,6 @@
-﻿#include "globals.hpp"
+﻿#include <cmath>
+
+#include "globals.hpp"
 #include "components/control.hpp"
 #include "components/velocity.hpp"
 
@@ -39,8 +41,8 @@ void control(Entities& entities)
         vel->vy_ = vertical * 20;
         if (std::abs(horizontal) + std::abs(vertical) > 1.98)
         {
-            vel->vx_ *= sqrt(2.0) / 2.0;
-            vel->vy_ *= sqrt(2.0) / 2.0;
+            vel->vx_ *= std::sqrt(2.0) / 2.0;
+            vel->vy_ *= std::sqrt(2.0) / 2.0;
         }
 
         // TODO: Саня, соберись! Подумай, как сделать красиво
