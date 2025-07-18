@@ -71,6 +71,7 @@ void checkCollisions(Entities& entities)
                 float deltaByX = distX - (lineX.width_ + size->w_) / 2.0;
                 if (deltaByY < 0.0f && deltaByX < 0.0f)
                 {
+                    // TODO: возможно отрефакторить? collision system публикует события, отдельный обработчик физики меняет velocity
                     if (entity.hasComponent<Ball>() && other.hasComponent<Goal>())
                     {
                         Goal* goal = other.getComponent<Goal>();
