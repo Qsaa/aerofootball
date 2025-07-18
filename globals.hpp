@@ -4,6 +4,7 @@
 #include <array>
 
 #include "entity.hpp"
+#include "events/event_processor.hpp"
 #include "keyboard_state.hpp"
 
 extern SDL_Window* window;
@@ -13,3 +14,5 @@ using Entities = std::array<Entity, 13>;
 extern Entities entities;
 
 extern KeyboardState input;
+
+extern EventProcessor events;
