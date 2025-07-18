@@ -43,7 +43,7 @@ void engine(Entities& entities)
         float new_y = pos->y_ + velocity->vy_ * t;
 
         // Collision to a border of the screen
-        if ((new_x + size->w_) > w || new_x < 0)
+        /*if ((new_x + size->w_) > w || new_x < 0)
         {
             if (collision->bounce_)
             {
@@ -66,7 +66,7 @@ void engine(Entities& entities)
                 velocity->vy_ = 0;
             }
             new_y = pos->y_;
-        }
+        }*/
 
         for (auto& other : entities)
         {

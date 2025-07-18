@@ -49,6 +49,8 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     
     int w = 0, h = 0;
     SDL_GetRenderOutputSize(renderer, &w, &h);
+    float h_float = h;
+    float w_float = w;
     // load the PNG
     auto png_surface = IMG_Load("../fieldScreen.png");
     if (!png_surface)
@@ -60,6 +62,18 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[0].addComponent(Texture{field_texture});
     entities[0].addComponent(Position{0, 0});
     entities[0].addComponent(Size{w, h});
+
+    // Игорян сделай это пожалуйста )))
+    auto centrOfFieldSurface = IMG_Load("../centreOfField.png");
+    if (!centrOfFieldSurface)
+    {
+        return SDL_APP_FAILURE;
+    }
+    SDL_Texture* centrOfFieldTexture = SDL_CreateTextureFromSurface(renderer, png_surface);
+    SDL_DestroySurface(centrOfFieldSurface);
+    entities[1].addComponent(Texture{centrOfFieldTexture});
+    entities[1].addComponent(Position{100, 100});
+    entities[1].addComponent(Size{ 55, 55 });
     
 
     SDL_Surface* ball_surface = IMG_Load("../ball.png");
@@ -70,7 +84,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     SDL_Texture* ball_texture = SDL_CreateTextureFromSurface(renderer, ball_surface);
     SDL_DestroySurface(ball_surface);
     entities[2].addComponent(Texture{ball_texture});
-    entities[2].addComponent(Position{0, 0});
+    entities[2].addComponent(Position{400, 400});
     entities[2].addComponent(Size{ 100, 100 });
     entities[2].addComponent(Velocity{15, 15 });
     entities[2].addComponent(Collision{true, false});
@@ -84,13 +98,13 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     }
     SDL_Texture* playerRedTexture = SDL_CreateTextureFromSurface(renderer, playerRedSurface);
     SDL_DestroySurface(playerRedSurface);
-    entities[1].addComponent(Texture{ playerRedTexture });
-    entities[1].addComponent(Position{600, 600}); 
-    entities[1].addComponent(Size{ 100, 100 });
-    entities[1].addComponent(Velocity{ 0, 0 });
-    entities[1].addComponent(Collision{});
-    entities[1].addComponent(Debug{ "RED_PLAYER" });
-    entities[1].addComponent(Control{SDLK_UP, SDLK_RIGHT, SDLK_DOWN, SDLK_LEFT});
+    entities[3].addComponent(Texture{ playerRedTexture });
+    entities[3].addComponent(Position{600, 600}); 
+    entities[3].addComponent(Size{ 100, 100 });
+    entities[3].addComponent(Velocity{ 0, 0 });
+    entities[3].addComponent(Collision{});
+    entities[3].addComponent(Debug{ "RED_PLAYER" });
+    entities[3].addComponent(Control{SDLK_UP, SDLK_RIGHT, SDLK_DOWN, SDLK_LEFT});
 
 
     SDL_Surface* playerBlueSurface = IMG_Load("../playerBlue.png");
@@ -100,12 +114,12 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     }
     SDL_Texture* playerBlueTexture = SDL_CreateTextureFromSurface(renderer, playerBlueSurface);
     SDL_DestroySurface(playerBlueSurface);
-    entities[3].addComponent(Texture{ playerBlueTexture });
-    entities[3].addComponent(Position{ 1000, 500 });
-    entities[3].addComponent(Size{ 100, 100 });
-    entities[3].addComponent(Velocity{ 0, 0 });
-    entities[3].addComponent(Collision{});
-    entities[3].addComponent(Control{SDLK_W, SDLK_D, SDLK_S, SDLK_A});
+    entities[4].addComponent(Texture{ playerBlueTexture });
+    entities[4].addComponent(Position{ 1000, 500 });
+    entities[4].addComponent(Size{ 100, 100 });
+    entities[4].addComponent(Velocity{ 0, 0 });
+    entities[4].addComponent(Collision{});
+    entities[4].addComponent(Control{SDLK_W, SDLK_D, SDLK_S, SDLK_A});
 
     SDL_Surface* wallSurface = IMG_Load("../wall.png");
     if (!wallSurface)
@@ -114,13 +128,47 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     }
     SDL_Texture* wallTexture = SDL_CreateTextureFromSurface(renderer, wallSurface);
     SDL_DestroySurface(wallSurface);
+    
+    entities[5].addComponent(Texture{ wallTexture });
+    entities[5].addComponent(Position{0, 0});
+    entities[5].addComponent(Size{w, 20 });
+    entities[5].addComponent(Collision{ true, true });
 
-    entities[4].addComponent(Texture{ wallTexture });
-    entities[4].addComponent(Position{ 400, 300 });
-    entities[4].addComponent(Size{ 50, 600 });
-    entities[4].addComponent(Collision{true, true});
+    entities[6].addComponent(Texture{ wallTexture });
+    entities[6].addComponent(Position{ w_float - 20 - 40, 0});
+    entities[6].addComponent(Size{ 20, h / 3});
+    entities[6].addComponent(Collision{ true, true });
 
+    entities[7].addComponent(Texture{ wallTexture });
+    entities[7].addComponent(Position{ w_float - 20, h_float / 3.0f });
+    entities[7].addComponent(Size{ 20, h / 3 });
+    entities[7].addComponent(Collision{ true, true });
 
+    entities[8].addComponent(Texture{ wallTexture });
+    entities[8].addComponent(Position{ w_float - 20 - 40, h_float / 3.0f * 2.0f});
+    entities[8].addComponent(Size{ 20, h / 3 });
+    entities[8].addComponent(Collision{ true, true });
+
+    entities[9].addComponent(Texture{ wallTexture });
+    entities[9].addComponent(Position{0, h_float - 20});
+    entities[9].addComponent(Size{w, 20 });
+    entities[9].addComponent(Collision{true, true});
+
+    entities[10].addComponent(Texture{ wallTexture });
+    entities[10].addComponent(Position{40, 0 });
+    entities[10].addComponent(Size{ 20, h / 3});
+    entities[10].addComponent(Collision{ true, true });
+
+    entities[11].addComponent(Texture{ wallTexture });
+    entities[11].addComponent(Position{ 0, h_float / 3.0f });
+    entities[11].addComponent(Size{ 20, h / 3});
+    entities[11].addComponent(Collision{ true, true });
+
+    entities[12].addComponent(Texture{ wallTexture });
+    entities[12].addComponent(Position{ 40, h_float / 3.0f * 2.0f });
+    entities[12].addComponent(Size{ 20, h / 3});
+    entities[12].addComponent(Collision{ true, true });
+    
     return SDL_APP_CONTINUE;
 }
 
