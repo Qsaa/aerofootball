@@ -33,7 +33,7 @@
 
 // ==========
 void draw(Entities&);
-void engine(Entities&);
+void checkCollisions(Entities&);
 void control(Entities&);
 // =========
 
@@ -201,9 +201,9 @@ SDL_AppResult SDL_AppIterate(void* appstate)
     SDL_RenderClear(renderer);
 
     draw(entities);
-    engine(entities);
+    checkCollisions(entities);
     control(entities);
-   
+
     SDL_RenderPresent(renderer);
 
     return SDL_APP_CONTINUE;

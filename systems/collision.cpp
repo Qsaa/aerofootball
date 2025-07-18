@@ -1,11 +1,11 @@
-﻿#include "globals.hpp"
-#include "entity.hpp"
-#include "components/velocity.hpp"
-#include "components/position.hpp"
-#include "components/size.hpp"
-#include "components/collider.hpp"
-#include "point.hpp"
-#include "components/debug.hpp"
+#include "../globals.hpp"
+#include "../entity.hpp"
+#include "../components/velocity.hpp"
+#include "../components/position.hpp"
+#include "../components/size.hpp"
+#include "../components/collider.hpp"
+#include "../components/debug.hpp"
+#include "../point.hpp"
 
 Point getCenter(Entity& entity)
 {
@@ -20,7 +20,7 @@ Point getCenter(Entity& entity)
 }
 
 
-void engine(Entities& entities)
+void checkCollisions(Entities& entities)
 {
     float t = 0.05;
     int w = 0, h = 0;
@@ -41,32 +41,6 @@ void engine(Entities& entities)
         
         float new_x = pos->x_ + velocity->vx_ * t;
         float new_y = pos->y_ + velocity->vy_ * t;
-
-        // Collision to a border of the screen
-        /*if ((new_x + size->w_) > w || new_x < 0)
-        {
-            if (collider->bounce_)
-            {
-                velocity->invert_vx();
-            }
-            else
-            {
-                velocity->vx_ = 0;
-            }
-            new_x = pos->x_;
-        }
-        if ((new_y + size->h_) > h || new_y < 0)
-        {
-            if (collider->bounce_)
-            {
-                velocity->invert_vy();
-            }
-            else
-            {
-                velocity->vy_ = 0;
-            }
-            new_y = pos->y_;
-        }*/
 
         for (auto& other : entities)
         {
