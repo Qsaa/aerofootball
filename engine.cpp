@@ -79,14 +79,14 @@ void engine(Entities& entities)
             {
                 auto otherPos = other.getComponent<Position>();
                 auto otherSize = other.getComponent<Size>();
-             
+
                 Line lineY{ Point{otherPos->x_ + otherSize->w_ / 2.0f, otherPos->y_},
                             Point{otherPos->x_ + otherSize->w_ / 2.0f, otherPos->y_ + otherSize->h_},
                             otherSize->w_ };
                 Line lineX{ Point{otherPos->x_, otherPos->y_ + otherSize->h_ / 2.0f},
                             Point{otherPos->x_ + otherSize->w_, otherPos->y_ + otherSize->h_ / 2.0f},
                             otherSize->h_ };
-                
+
                 float distY = lineY.distance(Point{ new_x + size->w_ / 2.0f, new_y + size->w_ / 2.0f });
                 float distX = lineX.distance(Point{ new_x + size->w_ / 2.0f, new_y + size->w_ / 2.0f });
 
@@ -105,7 +105,6 @@ void engine(Entities& entities)
                             velocity->vy_ = 0;
                         }
                         new_y = pos->y_;
-
                     }
                     else
                     {

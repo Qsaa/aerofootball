@@ -63,18 +63,18 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[0].addComponent(Position{0, 0});
     entities[0].addComponent(Size{w, h});
 
-    // Игорян сделай это пожалуйста )))
-    auto centrOfFieldSurface = IMG_Load("../centreOfField.png");
-    if (!centrOfFieldSurface)
+    const int centerSize = 500;
+    auto centerOfFieldSurface = IMG_Load("../center.png");
+    if (!centerOfFieldSurface)
     {
         return SDL_APP_FAILURE;
     }
     SDL_Texture* centrOfFieldTexture = SDL_CreateTextureFromSurface(renderer, png_surface);
-    SDL_DestroySurface(centrOfFieldSurface);
+    SDL_DestroySurface(centerOfFieldSurface);
     entities[1].addComponent(Texture{centrOfFieldTexture});
-    entities[1].addComponent(Position{100, 100});
-    entities[1].addComponent(Size{ 55, 55 });
-    
+    entities[1].addComponent(Position{w_float / 2.0f - centerSize / 2, h_float / 2.0f - centerSize / 2});
+    entities[1].addComponent(Size{ centerSize, centerSize });
+
 
     SDL_Surface* ball_surface = IMG_Load("../ball.png");
     if (!ball_surface)
