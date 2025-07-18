@@ -1,3 +1,3 @@
 #include "collision.hpp"
 
-Collision::Collision(bool bounce) : bounce_(bounce) {}
+Collision::Collision(bool bounce, bool isRectangle) : bounce_(bounce), isRectangle_(isRectangle) {}

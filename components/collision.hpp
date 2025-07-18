@@ -5,7 +5,8 @@
 class Collision : public Component
 {
 public:
-	Collision(bool bounce = false);
+	Collision(bool bounce = false, bool isRectangle = false);
 public:
 	bool bounce_ = false;
+	bool isRectangle_ = false;
 };

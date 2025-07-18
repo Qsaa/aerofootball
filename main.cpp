@@ -70,10 +70,11 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     SDL_Texture* ball_texture = SDL_CreateTextureFromSurface(renderer, ball_surface);
     SDL_DestroySurface(ball_surface);
     entities[2].addComponent(Texture{ball_texture});
-    entities[2].addComponent(Position{300, 300});
+    entities[2].addComponent(Position{0, 0});
     entities[2].addComponent(Size{ 100, 100 });
-    entities[2].addComponent(Velocity{ 15, 15 });
-    entities[2].addComponent(Collision{true});
+    entities[2].addComponent(Velocity{15, 15 });
+    entities[2].addComponent(Collision{true, false});
+    entities[2].addComponent(Debug{ "BALL" });
 
 
     SDL_Surface* playerRedSurface = IMG_Load("../playerRed.png");
@@ -84,7 +85,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     SDL_Texture* playerRedTexture = SDL_CreateTextureFromSurface(renderer, playerRedSurface);
     SDL_DestroySurface(playerRedSurface);
     entities[1].addComponent(Texture{ playerRedTexture });
-    entities[1].addComponent(Position{}); 
+    entities[1].addComponent(Position{600, 600}); 
     entities[1].addComponent(Size{ 100, 100 });
     entities[1].addComponent(Velocity{ 0, 0 });
     entities[1].addComponent(Collision{});
@@ -105,6 +106,19 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[3].addComponent(Velocity{ 0, 0 });
     entities[3].addComponent(Collision{});
     entities[3].addComponent(Control{SDLK_W, SDLK_D, SDLK_S, SDLK_A});
+
+    SDL_Surface* wallSurface = IMG_Load("../wall.png");
+    if (!wallSurface)
+    {
+        return SDL_APP_FAILURE;
+    }
+    SDL_Texture* wallTexture = SDL_CreateTextureFromSurface(renderer, wallSurface);
+    SDL_DestroySurface(wallSurface);
+
+    entities[4].addComponent(Texture{ wallTexture });
+    entities[4].addComponent(Position{ 400, 300 });
+    entities[4].addComponent(Size{ 50, 600 });
+    entities[4].addComponent(Collision{true, true});
 
 
     return SDL_APP_CONTINUE;

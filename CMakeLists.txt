@@ -20,13 +20,14 @@ set(SDLIMAGE_VENDORED OFF)
 add_subdirectory(vendored/SDL_image EXCLUDE_FROM_ALL)
 
 # Create your game executable target as usual
-add_executable(Aerofootball WIN32 "main.cpp"   "globals.cpp"  "entity.cpp" "components/texture.cpp" "components/position.cpp" "components/size.cpp" "components/velocity.cpp" "draw.cpp" "engine.cpp" "components/collision.cpp" "point.cpp" "components/control.cpp" "control_system.cpp")
+add_executable(Aerofootball WIN32 "main.cpp"   "globals.cpp"  "entity.cpp" "components/texture.cpp" "components/position.cpp" "components/size.cpp" "components/velocity.cpp" "draw.cpp" "engine.cpp" "components/collision.cpp" "point.cpp" "components/control.cpp" "control_system.cpp" "components/debug.cpp")
 target_compile_features(Aerofootball PRIVATE cxx_std_20)
 
 file(COPY "assets/fieldScreen.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(COPY "assets/ball.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(COPY "assets/playerRed.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(COPY "assets/playerBlue.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+file(COPY "assets/wall.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 
 # Link to the actual SDL3 library.
 target_link_libraries(Aerofootball PRIVATE SDL3_image::SDL3_image SDL3::SDL3)

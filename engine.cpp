@@ -5,6 +5,7 @@
 #include "components/size.hpp"
 #include "components/collision.hpp"
 #include "point.hpp"
+#include "components/debug.hpp"
 
 Point getCenter(Entity& entity)
 {
@@ -73,41 +74,89 @@ void engine(Entities& entities)
             {
                 continue;
             }
-            
-            
-            Point pointNew {new_x + size->w_ / 2.0f, new_y + size->h_ / 2.0f};
-            Point pointStatic = getCenter(other);
-            float distance = pointNew.distance(pointStatic);
-            auto other_size = other.getComponent<Size>();
-            if (distance <= (size->w_ + other_size->w_) / 2.0)
+            auto otherCollision = other.getComponent<Collision>();
+            if (otherCollision->isRectangle_)
             {
-                if (collision->bounce_)
+                auto otherPos = other.getComponent<Position>();
+                auto otherSize = other.getComponent<Size>();
+             
+                Line lineY{ Point{otherPos->x_ + otherSize->w_ / 2.0f, otherPos->y_},
+                            Point{otherPos->x_ + otherSize->w_ / 2.0f, otherPos->y_ + otherSize->h_},
+                            otherSize->w_ };
+                Line lineX{ Point{otherPos->x_, otherPos->y_ + otherSize->h_ / 2.0f},
+                            Point{otherPos->x_ + otherSize->w_, otherPos->y_ + otherSize->h_ / 2.0f},
+                            otherSize->h_ };
+                
+                float distY = lineY.distance(Point{ new_x + size->w_ / 2.0f, new_y + size->w_ / 2.0f });
+                float distX = lineX.distance(Point{ new_x + size->w_ / 2.0f, new_y + size->w_ / 2.0f });
+
+                float deltaByY = distY - (lineY.width_ + size->w_) / 2.0;
+                float deltaByX = distX - (lineX.width_ + size->w_) / 2.0;
+                if (deltaByY < 0.0f && deltaByX < 0.0f)
                 {
-                    // Есть две точки. Ищем угол к оси Х
-                    float sinTetta = (pointStatic.y_ - pointNew.y_) / distance;
-                    float cosTetta = (pointStatic.x_ - pointNew.x_) / distance;
+                    if (deltaByY < deltaByX)
+                    {
+                        if (collision->bounce_)
+                        {
+                            velocity->invert_vy();
+                        }
+                        else
+                        {
+                            velocity->vy_ = 0;
+                        }
+                        new_y = pos->y_;
 
-                    // Преобразовываем систему координат
-                    float velocity2vX = velocity->vx_ * cosTetta + velocity->vy_ * sinTetta;
-                    float velosity2vY = -velocity->vx_ * sinTetta + velocity->vy_ * cosTetta;
-
-                    //Отражение
-                    float velocity2vX_reflect = -velocity2vX;
-                    float velocity2vY_reflect = velosity2vY;
-
-                    // Возвращаем систему координат // аккуратно 
-                    sinTetta = -sinTetta;
-                    cosTetta = cosTetta;
-
-                    float vxNew = velocity2vX_reflect * cosTetta + velocity2vY_reflect * sinTetta;
-                    float vyNew = -velocity2vX_reflect * sinTetta + velocity2vY_reflect * cosTetta;
-
-
-                    velocity->vx_ = vxNew;
-                    velocity->vy_ = vyNew;
+                    }
+                    else
+                    {
+                        if (collision->bounce_)
+                        {
+                            velocity->invert_vx();
+                        }
+                        else
+                        {
+                            velocity->vx_ = 0;
+                        }
+                        new_x = pos->x_;
+                    }
                 }
-                new_x = pos->x_;
-                new_y = pos->y_;
+            }
+            else
+            {
+                Point pointNew{ new_x + size->w_ / 2.0f, new_y + size->h_ / 2.0f };
+                Point pointStatic = getCenter(other);
+                float distance = pointNew.distance(pointStatic);
+                auto other_size = other.getComponent<Size>();
+                if (distance <= (size->w_ + other_size->w_) / 2.0)
+                {
+                    if (collision->bounce_)
+                    {
+                        // Есть две точки. Ищем угол к оси Х
+                        float sinTetta = (pointStatic.y_ - pointNew.y_) / distance;
+                        float cosTetta = (pointStatic.x_ - pointNew.x_) / distance;
+
+                        // Преобразовываем систему координат
+                        float velocity2vX = velocity->vx_ * cosTetta + velocity->vy_ * sinTetta;
+                        float velosity2vY = -velocity->vx_ * sinTetta + velocity->vy_ * cosTetta;
+
+                        //Отражение
+                        float velocity2vX_reflect = -velocity2vX;
+                        float velocity2vY_reflect = velosity2vY;
+
+                        // Возвращаем систему координат // аккуратно 
+                        sinTetta = -sinTetta;
+                        cosTetta = cosTetta;
+
+                        float vxNew = velocity2vX_reflect * cosTetta + velocity2vY_reflect * sinTetta;
+                        float vyNew = -velocity2vX_reflect * sinTetta + velocity2vY_reflect * cosTetta;
+
+
+                        velocity->vx_ = vxNew;
+                        velocity->vy_ = vyNew;
+                    }
+                    new_x = pos->x_;
+                    new_y = pos->y_;
+                }
             }
         }
 

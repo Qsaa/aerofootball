@@ -9,7 +9,7 @@
 extern SDL_Window* window;
 extern SDL_Renderer* renderer;
 
-using Entities = std::array<Entity, 4>;
+using Entities = std::array<Entity, 5>;
 extern Entities entities;
 
 extern KeyboardState input;
