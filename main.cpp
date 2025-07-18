@@ -99,7 +99,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     SDL_Texture* playerRedTexture = SDL_CreateTextureFromSurface(renderer, playerRedSurface);
     SDL_DestroySurface(playerRedSurface);
     entities[3].addComponent(Texture{ playerRedTexture });
-    entities[3].addComponent(Position{600, 600}); 
+    entities[3].addComponent(Position{ w_float * 0.9f - 50, h_float / 2.0f - 50});
     entities[3].addComponent(Size{ 100, 100 });
     entities[3].addComponent(Velocity{ 0, 0 });
     entities[3].addComponent(Collision{});
@@ -112,10 +112,11 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     {
         return SDL_APP_FAILURE;
     }
+
     SDL_Texture* playerBlueTexture = SDL_CreateTextureFromSurface(renderer, playerBlueSurface);
     SDL_DestroySurface(playerBlueSurface);
     entities[4].addComponent(Texture{ playerBlueTexture });
-    entities[4].addComponent(Position{ 1000, 500 });
+    entities[4].addComponent(Position{ w_float * 0.1f - 50, h_float / 2.0f - 50 });
     entities[4].addComponent(Size{ 100, 100 });
     entities[4].addComponent(Velocity{ 0, 0 });
     entities[4].addComponent(Collision{});
