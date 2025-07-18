@@ -134,6 +134,9 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
         return SDL_APP_FAILURE;
     }
     SDL_Texture* wallTexture = SDL_CreateTextureFromSurface(renderer, wallSurface);
+    // TODO: убрать костыли
+    SDL_Texture* blueGoalTexture = SDL_CreateTextureFromSurface(renderer, wallSurface);
+    SDL_Texture* redGoalTexture = SDL_CreateTextureFromSurface(renderer, wallSurface);
     SDL_DestroySurface(wallSurface);
     
     entities[5].addComponent(Texture{ wallTexture });
@@ -146,7 +149,8 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[6].addComponent(Size{ 20, h / 3});
     entities[6].addComponent(Collider{ true, true });
 
-    entities[7].addComponent(Texture{ wallTexture });
+    SDL_SetTextureColorMod(redGoalTexture, 237, 28, 36);
+    entities[7].addComponent(Texture{ redGoalTexture });
     entities[7].addComponent(Position{ w_float - 20, h_float / 3.0f });
     entities[7].addComponent(Size{ 20, h / 3 });
     entities[7].addComponent(Collider{ true, true });
@@ -167,7 +171,8 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[10].addComponent(Size{ 20, h / 3});
     entities[10].addComponent(Collider{ true, true });
 
-    entities[11].addComponent(Texture{ wallTexture });
+    SDL_SetTextureColorMod(blueGoalTexture, 63, 72, 204);
+    entities[11].addComponent(Texture{ blueGoalTexture });
     entities[11].addComponent(Position{ 0, h_float / 3.0f });
     entities[11].addComponent(Size{ 20, h / 3});
     entities[11].addComponent(Collider{ true, true });
