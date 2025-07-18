@@ -15,9 +15,11 @@
 #include <SDL3/SDL_main.h>
 
 #include <cmath>
+#include <iostream>
 #include <utility>
 #include <vector>
 #include <array>
+#include <format>
 
 #include "entity.hpp"
 
@@ -30,6 +32,9 @@
 #include "components/collider.hpp"
 #include "components/control.hpp"
 #include "components/debug.hpp"
+#include "components/goal.hpp"
+#include "components/ball.hpp"
+#include "events/goal.hpp"
 
 // ==========
 void draw(Entities&);
@@ -89,6 +94,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[2].addComponent(Velocity{15, 15 });
     entities[2].addComponent(Collider{true, false});
     entities[2].addComponent(Debug{ "BALL" });
+    entities[2].addComponent(Ball{});
 
 
     SDL_Surface* playerRedSurface = IMG_Load("../playerRed.png");
@@ -144,6 +150,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[7].addComponent(Position{ w_float - 20, h_float / 3.0f });
     entities[7].addComponent(Size{ 20, h / 3 });
     entities[7].addComponent(Collider{ true, true });
+    entities[7].addComponent(Goal{Team::Red});
 
     entities[8].addComponent(Texture{ wallTexture });
     entities[8].addComponent(Position{ w_float - 20 - 40, h_float / 3.0f * 2.0f});
@@ -164,12 +171,28 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[11].addComponent(Position{ 0, h_float / 3.0f });
     entities[11].addComponent(Size{ 20, h / 3});
     entities[11].addComponent(Collider{ true, true });
+    entities[11].addComponent(Goal{Team::Blue});
 
     entities[12].addComponent(Texture{ wallTexture });
     entities[12].addComponent(Position{ 40, h_float / 3.0f * 2.0f });
     entities[12].addComponent(Size{ 20, h / 3});
     entities[12].addComponent(Collider{ true, true });
-    
+
+    events.subscribe<GoalEvent>([](const GoalEvent& event)
+    {
+        switch (event.team)
+        {
+        case Team::Blue:
+            redScore++;
+            break;
+        case Team::Red:
+            blueScore++;
+            break;
+        default:
+            break;
+        }
+    });
+
     return SDL_APP_CONTINUE;
 }
 
@@ -203,6 +226,8 @@ SDL_AppResult SDL_AppIterate(void* appstate)
     draw(entities);
     checkCollisions(entities);
     control(entities);
+
+    SDL_RenderDebugText(renderer, 30, 30, std::format("Red: {0} Blue {1}", redScore, blueScore).c_str());
 
     SDL_RenderPresent(renderer);
 

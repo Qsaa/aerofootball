@@ -5,6 +5,9 @@
 #include "../components/size.hpp"
 #include "../components/collider.hpp"
 #include "../components/debug.hpp"
+#include "../components/goal.hpp"
+#include "../components/ball.hpp"
+#include "../events/goal.hpp"
 #include "../point.hpp"
 
 Point getCenter(Entity& entity)
@@ -68,6 +71,12 @@ void checkCollisions(Entities& entities)
                 float deltaByX = distX - (lineX.width_ + size->w_) / 2.0;
                 if (deltaByY < 0.0f && deltaByX < 0.0f)
                 {
+                    if (entity.hasComponent<Ball>() && other.hasComponent<Goal>())
+                    {
+                        Goal* goal = other.getComponent<Goal>();
+                        events.raise(GoalEvent{goal->team_});
+                    }
+
                     if (deltaByY < deltaByX)
                     {
                         if (collider->bounce_)
@@ -122,7 +131,6 @@ void checkCollisions(Entities& entities)
 
                         float vxNew = velocity2vX_reflect * cosTetta + velocity2vY_reflect * sinTetta;
                         float vyNew = -velocity2vX_reflect * sinTetta + velocity2vY_reflect * cosTetta;
-
 
                         velocity->vx_ = vxNew;
                         velocity->vy_ = vyNew;

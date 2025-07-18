@@ -21,7 +21,11 @@ public:
 template<typename T>
 inline void EventProcessor::subscribe(std::function<void(const T&)> callback)
 {
-    subscriptions_[typeid(T)].emplace_back(callback);
+    auto wrapper = [callback](const void* event)
+    {
+        callback(*static_cast<const T*>(event));
+    };
+    subscriptions_[typeid(T)].emplace_back(std::move(wrapper));
 }
 
 template <typename T>

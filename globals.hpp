@@ -16,3 +16,6 @@ extern Entities entities;
 extern KeyboardState input;
 
 extern EventProcessor events;
+
+extern int redScore;
+extern int blueScore;
