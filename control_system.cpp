@@ -1,4 +1,4 @@
-#include "globals.hpp"
+ï»¿#include "globals.hpp"
 #include "components/control.hpp"
 #include "components/velocity.hpp"
 
@@ -43,7 +43,7 @@ void control(Entities& entities)
             vel->vy_ *= sqrt(2.0) / 2.0;
         }
 
-        // TODO: Ñàíÿ, ñîáåðèñü! Ïîäóìàé, êàê ñäåëàòü êðàñèâî
+        // TODO: Ð¡Ð°Ð½Ñ, ÑÐ¾Ð±ÐµÑ€Ð¸ÑÑŒ! ÐŸÐ¾Ð´ÑƒÐ¼Ð°Ð¹, ÐºÐ°Ðº ÑÐ´ÐµÐ»Ð°Ñ‚ÑŒ ÐºÑ€Ð°ÑÐ¸Ð²Ð¾
         //float hor = control->horizontal_;
         //float ver = control->vertical_;
         //float v_control = std::sqrt(hor * hor + ver * ver);

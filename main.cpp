@@ -1,4 +1,4 @@
-/*
+п»ї/*
   Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
@@ -63,7 +63,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[0].addComponent(Position{0, 0});
     entities[0].addComponent(Size{w, h});
 
-    // Игорян сделай это пожалуйста )))
+    // РРіРѕСЂСЏРЅ СЃРґРµР»Р°Р№ СЌС‚Рѕ РїРѕР¶Р°Р»СѓР№СЃС‚Р° )))
     auto centrOfFieldSurface = IMG_Load("../centreOfField.png");
     if (!centrOfFieldSurface)
     {

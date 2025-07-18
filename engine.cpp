@@ -1,4 +1,4 @@
-#include "globals.hpp"
+п»ї#include "globals.hpp"
 #include "entity.hpp"
 #include "components/velocity.hpp"
 #include "components/position.hpp"
@@ -131,19 +131,19 @@ void engine(Entities& entities)
                 {
                     if (collision->bounce_)
                     {
-                        // Есть две точки. Ищем угол к оси Х
+                        // Р•СЃС‚СЊ РґРІРµ С‚РѕС‡РєРё. РС‰РµРј СѓРіРѕР» Рє РѕСЃРё РҐ
                         float sinTetta = (pointStatic.y_ - pointNew.y_) / distance;
                         float cosTetta = (pointStatic.x_ - pointNew.x_) / distance;
 
-                        // Преобразовываем систему координат
+                        // РџСЂРµРѕР±СЂР°Р·РѕРІС‹РІР°РµРј СЃРёСЃС‚РµРјСѓ РєРѕРѕСЂРґРёРЅР°С‚
                         float velocity2vX = velocity->vx_ * cosTetta + velocity->vy_ * sinTetta;
                         float velosity2vY = -velocity->vx_ * sinTetta + velocity->vy_ * cosTetta;
 
-                        //Отражение
+                        //РћС‚СЂР°Р¶РµРЅРёРµ
                         float velocity2vX_reflect = -velocity2vX;
                         float velocity2vY_reflect = velosity2vY;
 
-                        // Возвращаем систему координат // аккуратно 
+                        // Р’РѕР·РІСЂР°С‰Р°РµРј СЃРёСЃС‚РµРјСѓ РєРѕРѕСЂРґРёРЅР°С‚ // Р°РєРєСѓСЂР°С‚РЅРѕ 
                         sinTetta = -sinTetta;
                         cosTetta = cosTetta;
 
