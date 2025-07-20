@@ -8,3 +8,6 @@ SDL_Renderer* renderer = NULL;
 
 Entities entities;
 KeyboardState input;
+EventProcessor events;
+int redScore = 0;
+int blueScore = 0;

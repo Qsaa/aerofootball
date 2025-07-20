@@ -15,9 +15,11 @@
 #include <SDL3/SDL_main.h>
 
 #include <cmath>
+#include <iostream>
 #include <utility>
 #include <vector>
 #include <array>
+#include <format>
 
 #include "entity.hpp"
 
@@ -27,13 +29,16 @@
 #include "components/position.hpp"
 #include "components/size.hpp"
 #include "components/velocity.hpp"
-#include "components/collision.hpp"
+#include "components/collider.hpp"
 #include "components/control.hpp"
 #include "components/debug.hpp"
+#include "components/goal.hpp"
+#include "components/ball.hpp"
+#include "events/goal.hpp"
 
 // ==========
 void draw(Entities&);
-void engine(Entities&);
+void checkCollisions(Entities&);
 void control(Entities&);
 // =========
 
@@ -87,8 +92,9 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[2].addComponent(Position{400, 400});
     entities[2].addComponent(Size{ 100, 100 });
     entities[2].addComponent(Velocity{15, 15 });
-    entities[2].addComponent(Collision{true, false});
+    entities[2].addComponent(Collider{true, false});
     entities[2].addComponent(Debug{ "BALL" });
+    entities[2].addComponent(Ball{});
 
 
     SDL_Surface* playerRedSurface = IMG_Load("../playerRed.png");
@@ -102,7 +108,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[3].addComponent(Position{ w_float * 0.9f - 50, h_float / 2.0f - 50});
     entities[3].addComponent(Size{ 100, 100 });
     entities[3].addComponent(Velocity{ 0, 0 });
-    entities[3].addComponent(Collision{});
+    entities[3].addComponent(Collider{});
     entities[3].addComponent(Debug{ "RED_PLAYER" });
     entities[3].addComponent(Control{SDLK_UP, SDLK_RIGHT, SDLK_DOWN, SDLK_LEFT});
 
@@ -119,7 +125,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[4].addComponent(Position{ w_float * 0.1f - 50, h_float / 2.0f - 50 });
     entities[4].addComponent(Size{ 100, 100 });
     entities[4].addComponent(Velocity{ 0, 0 });
-    entities[4].addComponent(Collision{});
+    entities[4].addComponent(Collider{});
     entities[4].addComponent(Control{SDLK_W, SDLK_D, SDLK_S, SDLK_A});
 
     SDL_Surface* wallSurface = IMG_Load("../wall.png");
@@ -128,48 +134,70 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
         return SDL_APP_FAILURE;
     }
     SDL_Texture* wallTexture = SDL_CreateTextureFromSurface(renderer, wallSurface);
+    // TODO: убрать костыли
+    SDL_Texture* blueGoalTexture = SDL_CreateTextureFromSurface(renderer, wallSurface);
+    SDL_Texture* redGoalTexture = SDL_CreateTextureFromSurface(renderer, wallSurface);
     SDL_DestroySurface(wallSurface);
     
     entities[5].addComponent(Texture{ wallTexture });
     entities[5].addComponent(Position{0, 0});
     entities[5].addComponent(Size{w, 20 });
-    entities[5].addComponent(Collision{ true, true });
+    entities[5].addComponent(Collider{ true, true });
 
     entities[6].addComponent(Texture{ wallTexture });
     entities[6].addComponent(Position{ w_float - 20 - 40, 0});
     entities[6].addComponent(Size{ 20, h / 3});
-    entities[6].addComponent(Collision{ true, true });
+    entities[6].addComponent(Collider{ true, true });
 
-    entities[7].addComponent(Texture{ wallTexture });
+    SDL_SetTextureColorMod(redGoalTexture, 237, 28, 36);
+    entities[7].addComponent(Texture{ redGoalTexture });
     entities[7].addComponent(Position{ w_float - 20, h_float / 3.0f });
     entities[7].addComponent(Size{ 20, h / 3 });
-    entities[7].addComponent(Collision{ true, true });
+    entities[7].addComponent(Collider{ true, true });
+    entities[7].addComponent(Goal{Team::Red});
 
     entities[8].addComponent(Texture{ wallTexture });
     entities[8].addComponent(Position{ w_float - 20 - 40, h_float / 3.0f * 2.0f});
     entities[8].addComponent(Size{ 20, h / 3 });
-    entities[8].addComponent(Collision{ true, true });
+    entities[8].addComponent(Collider{ true, true });
 
     entities[9].addComponent(Texture{ wallTexture });
     entities[9].addComponent(Position{0, h_float - 20});
     entities[9].addComponent(Size{w, 20 });
-    entities[9].addComponent(Collision{true, true});
+    entities[9].addComponent(Collider{true, true});
 
     entities[10].addComponent(Texture{ wallTexture });
     entities[10].addComponent(Position{40, 0 });
     entities[10].addComponent(Size{ 20, h / 3});
-    entities[10].addComponent(Collision{ true, true });
+    entities[10].addComponent(Collider{ true, true });
 
-    entities[11].addComponent(Texture{ wallTexture });
+    SDL_SetTextureColorMod(blueGoalTexture, 63, 72, 204);
+    entities[11].addComponent(Texture{ blueGoalTexture });
     entities[11].addComponent(Position{ 0, h_float / 3.0f });
     entities[11].addComponent(Size{ 20, h / 3});
-    entities[11].addComponent(Collision{ true, true });
+    entities[11].addComponent(Collider{ true, true });
+    entities[11].addComponent(Goal{Team::Blue});
 
     entities[12].addComponent(Texture{ wallTexture });
     entities[12].addComponent(Position{ 40, h_float / 3.0f * 2.0f });
     entities[12].addComponent(Size{ 20, h / 3});
-    entities[12].addComponent(Collision{ true, true });
-    
+    entities[12].addComponent(Collider{ true, true });
+
+    events.subscribe<GoalEvent>([](const GoalEvent& event)
+    {
+        switch (event.team)
+        {
+        case Team::Blue:
+            redScore++;
+            break;
+        case Team::Red:
+            blueScore++;
+            break;
+        default:
+            break;
+        }
+    });
+
     return SDL_APP_CONTINUE;
 }
 
@@ -201,9 +229,11 @@ SDL_AppResult SDL_AppIterate(void* appstate)
     SDL_RenderClear(renderer);
 
     draw(entities);
-    engine(entities);
+    checkCollisions(entities);
     control(entities);
-   
+
+    SDL_RenderDebugText(renderer, 30, 30, std::format("Red: {0} Blue {1}", redScore, blueScore).c_str());
+
     SDL_RenderPresent(renderer);
 
     return SDL_APP_CONTINUE;

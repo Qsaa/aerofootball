@@ -2,10 +2,10 @@
 
 #include "component.hpp"
 
-class Collision : public Component
+class Collider : public Component
 {
 public:
-	Collision(bool bounce = false, bool isRectangle = false);
+	Collider(bool bounce = false, bool isRectangle = false);
 public:
 	bool bounce_ = false;
 	bool isRectangle_ = false;

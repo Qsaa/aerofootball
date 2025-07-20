@@ -1,11 +1,14 @@
-﻿#include "globals.hpp"
-#include "entity.hpp"
-#include "components/velocity.hpp"
-#include "components/position.hpp"
-#include "components/size.hpp"
-#include "components/collision.hpp"
-#include "point.hpp"
-#include "components/debug.hpp"
+#include "../globals.hpp"
+#include "../entity.hpp"
+#include "../components/velocity.hpp"
+#include "../components/position.hpp"
+#include "../components/size.hpp"
+#include "../components/collider.hpp"
+#include "../components/debug.hpp"
+#include "../components/goal.hpp"
+#include "../components/ball.hpp"
+#include "../events/goal.hpp"
+#include "../point.hpp"
 
 Point getCenter(Entity& entity)
 {
@@ -20,7 +23,7 @@ Point getCenter(Entity& entity)
 }
 
 
-void engine(Entities& entities)
+void checkCollisions(Entities& entities)
 {
     float t = 0.05;
     int w = 0, h = 0;
@@ -29,7 +32,7 @@ void engine(Entities& entities)
     
     for (auto& entity : entities)
     {
-        if (!entity.hasComponent<Position, Size, Velocity, Collision>())
+        if (!entity.hasComponent<Position, Size, Velocity, Collider>())
         {
             continue;
         }
@@ -37,44 +40,18 @@ void engine(Entities& entities)
         auto velocity = entity.getComponent<Velocity>();
         auto pos = entity.getComponent<Position>();
         auto size = entity.getComponent<Size>();
-        auto collision = entity.getComponent<Collision>();
+        auto collider = entity.getComponent<Collider>();
         
         float new_x = pos->x_ + velocity->vx_ * t;
         float new_y = pos->y_ + velocity->vy_ * t;
 
-        // Collision to a border of the screen
-        /*if ((new_x + size->w_) > w || new_x < 0)
-        {
-            if (collision->bounce_)
-            {
-                velocity->invert_vx();
-            }
-            else
-            {
-                velocity->vx_ = 0;
-            }
-            new_x = pos->x_;
-        }
-        if ((new_y + size->h_) > h || new_y < 0)
-        {
-            if (collision->bounce_)
-            {
-                velocity->invert_vy();
-            }
-            else
-            {
-                velocity->vy_ = 0;
-            }
-            new_y = pos->y_;
-        }*/
-
         for (auto& other : entities)
         {
-            if (&entity == &other || !other.hasComponent<Collision, Position, Size>())
+            if (&entity == &other || !other.hasComponent<Collider, Position, Size>())
             {
                 continue;
             }
-            auto otherCollision = other.getComponent<Collision>();
+            auto otherCollision = other.getComponent<Collider>();
             if (otherCollision->isRectangle_)
             {
                 auto otherPos = other.getComponent<Position>();
@@ -94,9 +71,16 @@ void engine(Entities& entities)
                 float deltaByX = distX - (lineX.width_ + size->w_) / 2.0;
                 if (deltaByY < 0.0f && deltaByX < 0.0f)
                 {
+                    // TODO: возможно отрефакторить? collision system публикует события, отдельный обработчик физики меняет velocity
+                    if (entity.hasComponent<Ball>() && other.hasComponent<Goal>())
+                    {
+                        Goal* goal = other.getComponent<Goal>();
+                        events.raise(GoalEvent{goal->team_});
+                    }
+
                     if (deltaByY < deltaByX)
                     {
-                        if (collision->bounce_)
+                        if (collider->bounce_)
                         {
                             velocity->invert_vy();
                         }
@@ -108,7 +92,7 @@ void engine(Entities& entities)
                     }
                     else
                     {
-                        if (collision->bounce_)
+                        if (collider->bounce_)
                         {
                             velocity->invert_vx();
                         }
@@ -128,7 +112,7 @@ void engine(Entities& entities)
                 auto other_size = other.getComponent<Size>();
                 if (distance <= (size->w_ + other_size->w_) / 2.0)
                 {
-                    if (collision->bounce_)
+                    if (collider->bounce_)
                     {
                         // Есть две точки. Ищем угол к оси Х
                         float sinTetta = (pointStatic.y_ - pointNew.y_) / distance;
@@ -148,7 +132,6 @@ void engine(Entities& entities)
 
                         float vxNew = velocity2vX_reflect * cosTetta + velocity2vY_reflect * sinTetta;
                         float vyNew = -velocity2vX_reflect * sinTetta + velocity2vY_reflect * cosTetta;
-
 
                         velocity->vx_ = vxNew;
                         velocity->vy_ = vyNew;
