@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL3/SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
 #include <array>
 
 #include "entity.hpp"
@@ -9,8 +10,9 @@
 
 extern SDL_Window* window;
 extern SDL_Renderer* renderer;
+extern TTF_Font* font;
 
-using Entities = std::array<Entity, 13>;
+using Entities = std::array<Entity, 15>;
 extern Entities entities;
 
 extern KeyboardState input;

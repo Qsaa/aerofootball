@@ -1,10 +1,10 @@
 #include "globals.hpp"
 
-#include <SDL3/SDL.h>
 #include <array>
 
-SDL_Window* window = NULL;
-SDL_Renderer* renderer = NULL;
+SDL_Window* window = nullptr;
+SDL_Renderer* renderer = nullptr;
+TTF_Font* font = nullptr;
 
 Entities entities;
 KeyboardState input;

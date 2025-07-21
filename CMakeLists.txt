@@ -34,6 +34,7 @@ file(COPY "assets/playerRed.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(COPY "assets/playerBlue.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(COPY "assets/wall.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(COPY "assets/center.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+file(COPY "assets/uefa-nations-titling.ttf" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 
 # Link to the actual SDL3 library.
 target_link_libraries(Aerofootball PRIVATE SDL3_ttf::SDL3_ttf SDL3_image::SDL3_image SDL3::SDL3)

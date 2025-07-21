@@ -13,6 +13,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include <SDL3/SDL_main.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 #include <cmath>
 #include <iostream>
@@ -51,7 +52,13 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
         SDL_Log("Couldn't create window and renderer: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
-    
+
+    if (!TTF_Init())
+    {
+        SDL_Log("Couldn't init TTF library: %s", SDL_GetError());
+        return SDL_APP_FAILURE;
+    }
+
     int w = 0, h = 0;
     SDL_GetRenderOutputSize(renderer, &w, &h);
     float h_float = h;
@@ -183,16 +190,71 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[12].addComponent(Size{ 20, h / 3});
     entities[12].addComponent(Collider{ true, true });
 
+    font = TTF_OpenFont("../uefa-nations-titling.ttf", 36.0f);
+    if (!font) {
+        return SDL_APP_FAILURE;
+    }
+
+    // Счёт синих
+    std::string text = "Blue 0";
+    SDL_Surface* blueTextSurface = TTF_RenderText_Solid(font, text.data(), text.length(), { 63, 72, 204 });
+    SDL_Texture* blueTextTexture = SDL_CreateTextureFromSurface(renderer, blueTextSurface);
+    SDL_DestroySurface(blueTextSurface);
+    auto blueTextTextureProps = SDL_GetTextureProperties(blueTextTexture);
+    entities[13].addComponent(Texture{blueTextTexture});
+    entities[13].addComponent(Position{20, 20});
+    entities[13].addComponent(Size
+    {
+        float(SDL_GetNumberProperty(blueTextTextureProps, SDL_PROP_TEXTURE_WIDTH_NUMBER, 0)),
+        float(SDL_GetNumberProperty(blueTextTextureProps, SDL_PROP_TEXTURE_HEIGHT_NUMBER, 0))
+    });
+
+    // Счёт красных
+    text = "Red 0";
+    SDL_Surface* redTextSurface = TTF_RenderText_Solid(font, text.data(), text.length(), { 237, 28, 36 });
+    SDL_Texture* redTextTexture = SDL_CreateTextureFromSurface(renderer, redTextSurface);
+    SDL_DestroySurface(redTextSurface);
+    auto redTextTextureProps = SDL_GetTextureProperties(redTextTexture);
+    auto redTextWidth = float(SDL_GetNumberProperty(blueTextTextureProps, SDL_PROP_TEXTURE_WIDTH_NUMBER, 0));
+    entities[14].addComponent(Texture{redTextTexture});
+    entities[14].addComponent(Position{w_float - 20 - redTextWidth, 20});
+    entities[14].addComponent(Size
+    {
+        float(SDL_GetNumberProperty(redTextTextureProps, SDL_PROP_TEXTURE_WIDTH_NUMBER, 0)),
+        float(SDL_GetNumberProperty(redTextTextureProps, SDL_PROP_TEXTURE_HEIGHT_NUMBER, 0))
+    });
+
     events.subscribe<GoalEvent>([](const GoalEvent& event)
     {
         switch (event.team)
         {
         case Team::Blue:
+        {
             redScore++;
+
+            // TODO: кошмар, переделать
+            std::string str = std::format("Red {0}", redScore);
+            SDL_Surface* surface = TTF_RenderText_Solid(font, str.data(), str.length(), { 237, 28, 36 });
+            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+            SDL_DestroySurface(surface);
+            auto props = SDL_GetTextureProperties(texture);
+            entities[14].getComponent<Texture>()->texture_ = texture;
+            entities[14].getComponent<Size>()->w_ = float(SDL_GetNumberProperty(props, SDL_PROP_TEXTURE_WIDTH_NUMBER, 0));
             break;
+        }
         case Team::Red:
+        {
             blueScore++;
+
+            std::string str = std::format("Blue {0}", blueScore);
+            SDL_Surface* surface = TTF_RenderText_Solid(font, str.data(), str.length(), { 63, 72, 204 });
+            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+            SDL_DestroySurface(surface);
+            auto props = SDL_GetTextureProperties(texture);
+            entities[13].getComponent<Texture>()->texture_ = texture;
+            entities[13].getComponent<Size>()->w_ = float(SDL_GetNumberProperty(props, SDL_PROP_TEXTURE_WIDTH_NUMBER, 0));
             break;
+        }
         default:
             break;
         }
@@ -232,8 +294,6 @@ SDL_AppResult SDL_AppIterate(void* appstate)
     checkCollisions(entities);
     control(entities);
 
-    SDL_RenderDebugText(renderer, 30, 30, std::format("Red: {0} Blue {1}", redScore, blueScore).c_str());
-
     SDL_RenderPresent(renderer);
 
     return SDL_APP_CONTINUE;
@@ -242,6 +302,7 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 /* This function runs once at shutdown. */
 void SDL_AppQuit(void* appstate, SDL_AppResult result)
 {
+    TTF_CloseFont(font);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
