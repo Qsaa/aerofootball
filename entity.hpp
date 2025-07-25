@@ -20,12 +20,14 @@ public:
 	template<typename... Types >
 	bool hasComponent();
 
+	template<typename U>
+	void delComponent();
+
 private:
 	bool hasComponent();
 
 private:
 	std::unordered_map<size_t, std::unique_ptr<Component>> components_;
-
 };
 
 template<typename U>
@@ -44,8 +46,14 @@ inline bool Entity::hasComponent() {
 	return ((components_.contains(typeid(Types).hash_code())   ) && ...);  // Fold expression
 }
 
+template <typename U>
+inline void Entity::delComponent()
+{
+	components_.erase(typeid(U).hash_code());
+}
+
 template<typename U>
-void Entity::addComponent(U&& component)
+inline void Entity::addComponent(U&& component)
 {
 	components_[typeid(component).hash_code()] = std::make_unique<U>(std::forward<U>(component));
 }

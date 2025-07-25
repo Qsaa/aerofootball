@@ -44,6 +44,13 @@
         "cfenv": "cpp",
         "cinttypes": "cpp",
         "typeindex": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "charconv": "cpp",
+        "ctime": "cpp",
+        "format": "cpp",
+        "iostream": "cpp",
+        "istream": "cpp",
+        "span": "cpp",
+        "variant": "cpp"
     }
 }

@@ -43,7 +43,6 @@ void checkCollisions(Entities&);
 void control(Entities&);
 // =========
 
-
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
 {
@@ -145,6 +144,9 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     SDL_Texture* blueGoalTexture = SDL_CreateTextureFromSurface(renderer, wallSurface);
     SDL_Texture* redGoalTexture = SDL_CreateTextureFromSurface(renderer, wallSurface);
     SDL_DestroySurface(wallSurface);
+
+    float k_size_goal = 1 / 2.2f;
+    float k_size_wall = (1 - k_size_goal) / 2;
     
     entities[5].addComponent(Texture{ wallTexture });
     entities[5].addComponent(Position{0, 0});
@@ -153,19 +155,19 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
 
     entities[6].addComponent(Texture{ wallTexture });
     entities[6].addComponent(Position{ w_float - 20 - 40, 0});
-    entities[6].addComponent(Size{ 20, h / 3});
+    entities[6].addComponent(Size{ 20.0f, h * k_size_wall});
     entities[6].addComponent(Collider{ true, true });
 
     SDL_SetTextureColorMod(redGoalTexture, 237, 28, 36);
     entities[7].addComponent(Texture{ redGoalTexture });
-    entities[7].addComponent(Position{ w_float - 20, h_float / 3.0f });
-    entities[7].addComponent(Size{ 20, h / 3 });
+    entities[7].addComponent(Position{ w_float - 20, h_float * k_size_wall });
+    entities[7].addComponent(Size{ 20.0f, h * k_size_goal });
     entities[7].addComponent(Collider{ true, true });
     entities[7].addComponent(Goal{Team::Red});
 
     entities[8].addComponent(Texture{ wallTexture });
-    entities[8].addComponent(Position{ w_float - 20 - 40, h_float / 3.0f * 2.0f});
-    entities[8].addComponent(Size{ 20, h / 3 });
+    entities[8].addComponent(Position{ w_float - 20 - 40, h_float * (k_size_wall + k_size_goal)});
+    entities[8].addComponent(Size{ 20.0f, h * k_size_wall });
     entities[8].addComponent(Collider{ true, true });
 
     entities[9].addComponent(Texture{ wallTexture });
@@ -175,23 +177,29 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
 
     entities[10].addComponent(Texture{ wallTexture });
     entities[10].addComponent(Position{40, 0 });
-    entities[10].addComponent(Size{ 20, h / 3});
+    entities[10].addComponent(Size{ 20.0f, h * k_size_wall});
     entities[10].addComponent(Collider{ true, true });
 
     SDL_SetTextureColorMod(blueGoalTexture, 63, 72, 204);
     entities[11].addComponent(Texture{ blueGoalTexture });
-    entities[11].addComponent(Position{ 0, h_float / 3.0f });
-    entities[11].addComponent(Size{ 20, h / 3});
+    entities[11].addComponent(Position{ 0, h_float * k_size_wall });
+    entities[11].addComponent(Size{ 20.0f, h * k_size_goal});
     entities[11].addComponent(Collider{ true, true });
     entities[11].addComponent(Goal{Team::Blue});
 
     entities[12].addComponent(Texture{ wallTexture });
-    entities[12].addComponent(Position{ 40, h_float / 3.0f * 2.0f });
-    entities[12].addComponent(Size{ 20, h / 3});
+    entities[12].addComponent(Position{ 40, h_float * (k_size_goal + k_size_wall) });
+    entities[12].addComponent(Size{ 20.0f, h * k_size_wall});
     entities[12].addComponent(Collider{ true, true });
 
     font = TTF_OpenFont("../uefa-nations-titling.ttf", 36.0f);
-    if (!font) {
+    if (!font)
+    {
+        return SDL_APP_FAILURE;
+    }
+    fontLarge = TTF_OpenFont("../uefa-nations-titling.ttf", 72.0f);
+    if (!fontLarge)
+    {
         return SDL_APP_FAILURE;
     }
 
@@ -215,7 +223,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     SDL_Texture* redTextTexture = SDL_CreateTextureFromSurface(renderer, redTextSurface);
     SDL_DestroySurface(redTextSurface);
     auto redTextTextureProps = SDL_GetTextureProperties(redTextTexture);
-    auto redTextWidth = float(SDL_GetNumberProperty(blueTextTextureProps, SDL_PROP_TEXTURE_WIDTH_NUMBER, 0));
+    auto redTextWidth = float(SDL_GetNumberProperty(redTextTextureProps, SDL_PROP_TEXTURE_WIDTH_NUMBER, 0));
     entities[14].addComponent(Texture{redTextTexture});
     entities[14].addComponent(Position{w_float - 20 - redTextWidth, 20});
     entities[14].addComponent(Size
@@ -224,7 +232,19 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
         float(SDL_GetNumberProperty(redTextTextureProps, SDL_PROP_TEXTURE_HEIGHT_NUMBER, 0))
     });
 
-    events.subscribe<GoalEvent>([](const GoalEvent& event)
+    text = "Game over";
+    SDL_Surface* textSurface = TTF_RenderText_Solid(fontLarge, text.data(), text.length(), {0, 0, 0});
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    SDL_DestroySurface(textSurface);
+    auto textTextureProps = SDL_GetTextureProperties(textTexture);
+    float w_text = float(SDL_GetNumberProperty(textTextureProps, SDL_PROP_TEXTURE_WIDTH_NUMBER, 0));
+    float h_text = float(SDL_GetNumberProperty(textTextureProps, SDL_PROP_TEXTURE_HEIGHT_NUMBER, 0));
+    auto textWidth = float(SDL_GetNumberProperty(textTextureProps, SDL_PROP_TEXTURE_WIDTH_NUMBER, 0));
+    // entities[15].addComponent(Texture{textTexture});
+    entities[15].addComponent(Position{(w_float / 2.0f) - (w_text / 2.0f), (h_float / 2.0f) - (h_text / 2.0f),});
+    entities[15].addComponent(Size{w_text, h_text});
+
+    events.subscribe<GoalEvent>([textTexture](const GoalEvent& event)
     {
         switch (event.team)
         {
@@ -240,6 +260,12 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
             auto props = SDL_GetTextureProperties(texture);
             entities[14].getComponent<Texture>()->texture_ = texture;
             entities[14].getComponent<Size>()->w_ = float(SDL_GetNumberProperty(props, SDL_PROP_TEXTURE_WIDTH_NUMBER, 0));
+            
+            if (redScore > 4)
+            {
+                entities[15].addComponent(Texture{textTexture});
+                entities[2].delComponent<Velocity>();
+            }
             break;
         }
         case Team::Red:
@@ -253,6 +279,12 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
             auto props = SDL_GetTextureProperties(texture);
             entities[13].getComponent<Texture>()->texture_ = texture;
             entities[13].getComponent<Size>()->w_ = float(SDL_GetNumberProperty(props, SDL_PROP_TEXTURE_WIDTH_NUMBER, 0));
+
+            if (blueScore > 4)
+            {
+                entities[15].addComponent(Texture{textTexture});
+                entities[2].delComponent<Velocity>();
+            }
             break;
         }
         default:

@@ -5,6 +5,7 @@
 SDL_Window* window = nullptr;
 SDL_Renderer* renderer = nullptr;
 TTF_Font* font = nullptr;
+TTF_Font* fontLarge = nullptr;
 
 Entities entities;
 KeyboardState input;

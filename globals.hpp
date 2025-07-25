@@ -11,8 +11,9 @@
 extern SDL_Window* window;
 extern SDL_Renderer* renderer;
 extern TTF_Font* font;
+extern TTF_Font* fontLarge;
 
-using Entities = std::array<Entity, 15>;
+using Entities = std::array<Entity, 16>;
 extern Entities entities;
 
 extern KeyboardState input;
