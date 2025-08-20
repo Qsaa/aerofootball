@@ -1,4 +1,14 @@
-#include <SDL3/SDL.h>
+#include "globals.hpp"
 
-SDL_Window* window = NULL;
-SDL_Renderer* renderer = NULL;
+#include <array>
+
+SDL_Window* window = nullptr;
+SDL_Renderer* renderer = nullptr;
+TTF_Font* font = nullptr;
+TTF_Font* fontLarge = nullptr;
+
+Entities entities;
+KeyboardState input;
+EventProcessor events;
+int redScore = 0;
+int blueScore = 0;
