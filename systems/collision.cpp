@@ -76,9 +76,16 @@ void checkCollisions(Entities& entities)
                     {
                         Goal* goal = other.getComponent<Goal>();
                         events.raise(GoalEvent{goal->team_});
+                        //velocity->vy_ = 20; // TODO clear hardcode
+                        //velocity->vx_ = 0;
+                        //new_y = 100;
+                        //new_x = 100;
+                        // w_float / 2.0f - 50.0f, h_float / 2.0f
+                        //
+                        // 
                     }
 
-                    if (deltaByY < deltaByX)
+                    if (deltaByY < deltaByX) 
                     {
                         if (collider->bounce_)
                         {

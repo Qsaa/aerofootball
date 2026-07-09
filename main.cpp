@@ -80,7 +80,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     {
         return SDL_APP_FAILURE;
     }
-    SDL_Texture* centrOfFieldTexture = SDL_CreateTextureFromSurface(renderer, png_surface);
+    SDL_Texture* centrOfFieldTexture = SDL_CreateTextureFromSurface(renderer, centerOfFieldSurface);
     SDL_DestroySurface(centerOfFieldSurface);
     entities[1].addComponent(Texture{centrOfFieldTexture});
     entities[1].addComponent(Position{w_float / 2.0f - centerSize / 2, h_float / 2.0f - centerSize / 2});
@@ -95,9 +95,9 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     SDL_Texture* ball_texture = SDL_CreateTextureFromSurface(renderer, ball_surface);
     SDL_DestroySurface(ball_surface);
     entities[2].addComponent(Texture{ball_texture});
-    entities[2].addComponent(Position{400, 400});
+    entities[2].addComponent(Position{w_float / 2.0f - 50.0f, h_float / 2.0f });
     entities[2].addComponent(Size{ 100, 100 });
-    entities[2].addComponent(Velocity{15, 15 });
+    entities[2].addComponent(Velocity{0, 20 });
     entities[2].addComponent(Collider{true, false});
     entities[2].addComponent(Debug{ "BALL" });
     entities[2].addComponent(Ball{});
@@ -244,8 +244,16 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[15].addComponent(Position{(w_float / 2.0f) - (w_text / 2.0f), (h_float / 2.0f) - (h_text / 2.0f),});
     entities[15].addComponent(Size{w_text, h_text});
 
-    events.subscribe<GoalEvent>([textTexture](const GoalEvent& event)
+    events.subscribe<GoalEvent>([textTexture, w_float, h_float](const GoalEvent& event)
     {
+        auto velocity = entities[2].getComponent<Velocity>();
+        velocity->vx_ = 0;
+        velocity->vy_ = 20;
+
+        auto position = entities[2].getComponent<Position>();
+        position->x_ = w_float / 2.0f - 50.0f;
+        position->y_ = h_float / 2.0f;
+
         switch (event.team)
         {
         case Team::Blue:
