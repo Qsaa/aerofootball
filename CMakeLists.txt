@@ -19,7 +19,7 @@ set(SDLIMAGE_VENDORED OFF)
 # This assumes the SDL_image source is available in vendored/SDL_image
 add_subdirectory(vendored/SDL_image EXCLUDE_FROM_ALL)
 
-set(SDLTTF_VENDORED OFF)
+set(SDLTTF_VENDORED ON)
 
 # This assumes the SDL_ttf source is available in vendored/SDL_ttf
 add_subdirectory(vendored/SDL_ttf EXCLUDE_FROM_ALL)
