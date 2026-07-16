@@ -37,6 +37,9 @@
 #include "components/ball.hpp"
 #include "events/goal.hpp"
 
+
+#include <set>
+
 // ==========
 void draw(Entities&);
 void checkCollisions(Entities&);
@@ -46,6 +49,11 @@ void control(Entities&);
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
 {
+    if(!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD))
+    {
+        SDL_Log("Couldn't initialised SDL: %s", SDL_GetError());
+        return SDL_APP_FAILURE;
+    }
     /* Create the window */
     if (!SDL_CreateWindowAndRenderer("Hello World", 800, 600, SDL_WINDOW_FULLSCREEN, &window, &renderer)) {
         SDL_Log("Couldn't create window and renderer: %s", SDL_GetError());
@@ -117,6 +125,8 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[3].addComponent(Collider{});
     entities[3].addComponent(Debug{ "RED_PLAYER" });
     entities[3].addComponent(Control{SDLK_UP, SDLK_RIGHT, SDLK_DOWN, SDLK_LEFT});
+    //entities[3].addComponent(Control{ 
+    //    SDL_GAMEPAD_BUTTON_DPAD_UP, SDL_GAMEPAD_BUTTON_DPAD_RIGHT, SDL_GAMEPAD_BUTTON_DPAD_DOWN, SDL_GAMEPAD_BUTTON_DPAD_LEFT});
 
 
     SDL_Surface* playerBlueSurface = IMG_Load("../playerBlue.png");
@@ -303,9 +313,26 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     return SDL_APP_CONTINUE;
 }
 
+SDL_JoystickID joystickFirst = NULL;
+SDL_JoystickID joystickSecond = NULL;
+
 /* This function runs when a new event (mouse input, keypresses, etc) occurs. */
 SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
 {
+    if (event->type == SDL_EVENT_GAMEPAD_ADDED)
+    {
+        if (!joystickFirst)
+        {
+            joystickFirst = event->gdevice.which;
+            SDL_OpenGamepad(joystickFirst);
+        }
+        else if (!joystickSecond)
+        {
+            joystickSecond = event->gdevice.which;
+            SDL_OpenGamepad(joystickSecond);
+        }
+    }
+
     if (event->type == SDL_EVENT_QUIT || (event->type == SDL_EVENT_KEY_DOWN && event->key.key == SDLK_ESCAPE))
     {
         return SDL_APP_SUCCESS;
@@ -319,7 +346,77 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
     {
         input.keys[event->key.key] = false;
     }
-
+    
+    else if (event->type == SDL_EVENT_GAMEPAD_BUTTON_DOWN)
+    {
+        input.keys[event->gbutton.button] = true;
+    }
+    else if (event->type == SDL_EVENT_GAMEPAD_BUTTON_UP)
+    {
+        input.keys[event->gbutton.button] = false;
+    }
+    else if (event->type == SDL_EVENT_GAMEPAD_AXIS_MOTION)
+    {
+        auto& axis = event->gaxis;
+        if (axis.which == joystickFirst)
+        {
+            if (axis.axis == SDL_GAMEPAD_AXIS_LEFTX)
+            {
+                if (axis.value > -1000 && axis.value < 1000)
+                {
+                    input.keys[SDLK_A] = false;
+                    input.keys[SDLK_D] = false;
+                }
+                else
+                {
+                    input.keys[SDLK_A] = axis.value < 10;
+                    input.keys[SDLK_D] = axis.value > 10;
+                }
+            }
+            if (axis.axis == SDL_GAMEPAD_AXIS_LEFTY)
+            {
+                if (axis.value > -1000 && axis.value < 1000)
+                {
+                    input.keys[SDLK_W] = false;
+                    input.keys[SDLK_S] = false;
+                }
+                else
+                {
+                    input.keys[SDLK_W] = axis.value < 10;
+                    input.keys[SDLK_S] = axis.value > 10;
+                }
+            }
+        }
+        else if (axis.which == joystickSecond)
+        {
+            if (axis.axis == SDL_GAMEPAD_AXIS_LEFTX)
+            {
+                if (axis.value > -1000 && axis.value < 1000)
+                {
+                    input.keys[SDLK_LEFT] = false;
+                    input.keys[SDLK_RIGHT] = false;
+                }
+                else
+                {
+                    input.keys[SDLK_LEFT] = axis.value < 10;
+                    input.keys[SDLK_RIGHT] = axis.value > 10;
+                }
+            }
+            if (axis.axis == SDL_GAMEPAD_AXIS_LEFTY)
+            {
+                if (axis.value > -1000 && axis.value < 1000)
+                {
+                    input.keys[SDLK_UP] = false;
+                    input.keys[SDLK_DOWN] = false;
+                }
+                else
+                {
+                    input.keys[SDLK_UP] = axis.value < 10;
+                    input.keys[SDLK_DOWN] = axis.value > 10;
+                }
+            }
+        }
+    }
     return SDL_APP_CONTINUE;
 }
 
