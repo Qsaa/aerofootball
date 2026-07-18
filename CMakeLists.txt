@@ -12,11 +12,22 @@ set(FETCHCONTENT_LOG_DOWNLOADS ON)
 
 set(SDLIMAGE_VENDORED OFF)
 set(SDLTTF_VENDORED ON)
+set(SDLTTF_HARFBUZZ OFF)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows" AND "$ENV{MINGW_BUILD}" STREQUAL "1")
+    set(SDL_VIDEO_DRIVER_X11 OFF CACHE BOOL "" FORCE)
+    set(SDL_VIDEO_DRIVER_WAYLAND OFF CACHE BOOL "" FORCE)
+    set(SDL_AUDIO_DRIVER_ALSA OFF CACHE BOOL "" FORCE)
+    set(SDL_AUDIO_DRIVER_PIPEWIRE OFF CACHE BOOL "" FORCE)
+    set(SDL_AUDIO_DRIVER_PULSEAUDIO OFF CACHE BOOL "" FORCE)
+    set(SDL_AUDIO_DRIVER_JACK OFF CACHE BOOL "" FORCE)
+    set(SDL_VIDEO_DRIVER_WINDOWS ON CACHE BOOL "" FORCE)
+    set(SDL_AUDIO_DRIVER_WASAPI ON CACHE BOOL "" FORCE)
+endif()
 
 include(cmake/SDL.cmake)
 include(cmake/SDL_image.cmake)
 include(cmake/SDL_ttf.cmake)
-
 
 # Create your game executable target as usual
 add_executable(Aerofootball WIN32
@@ -38,13 +49,25 @@ add_executable(Aerofootball WIN32
 )
 target_compile_features(Aerofootball PRIVATE cxx_std_20)
 
-file(COPY "assets/fieldScreen.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-file(COPY "assets/ball.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-file(COPY "assets/playerRed.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-file(COPY "assets/playerBlue.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-file(COPY "assets/wall.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-file(COPY "assets/center.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-file(COPY "assets/uefa-nations-titling.ttf" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+
+# Copy MinGW dlls
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows" AND "$ENV{MINGW_BUILD}" STREQUAL "1")
+	add_custom_command(TARGET Aerofootball POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			/usr/lib/gcc/x86_64-w64-mingw32/13-posix/libstdc++-6.dll
+			/usr/lib/gcc/x86_64-w64-mingw32/13-posix/libgcc_s_seh-1.dll
+			/usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll
+			$<TARGET_FILE_DIR:Aerofootball>
+	)
+endif()
+
+# Copy all resources
+file(GLOB RESOURCE_FILES ${CMAKE_SOURCE_DIR}/assets/*.png ${CMAKE_SOURCE_DIR}/assets/*.ttf)
+add_custom_command(TARGET Aerofootball POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${RESOURCE_FILES}
+        $<TARGET_FILE_DIR:Aerofootball>
+)
 
 # Link to the actual SDL3 library.
 target_link_libraries(Aerofootball PRIVATE SDL3::SDL3 SDL3_image::SDL3_image SDL3_ttf::SDL3_ttf)

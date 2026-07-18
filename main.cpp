@@ -46,14 +46,31 @@ void checkCollisions(Entities&);
 void control(Entities&);
 // =========
 
+static std::string GetExecutablePath()
+{
+    auto basePath = SDL_GetBasePath();
+    if (basePath)
+    {
+        std::string path = basePath;
+        return path;
+    }
+    return "./";
+}
+
+static std::string GetResourcePath(const std::string& filename)
+{
+    return GetExecutablePath() + filename;
+}
+
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
 {
     if(!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD))
     {
-        SDL_Log("Couldn't initialised SDL: %s", SDL_GetError());
+        SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
+
     /* Create the window */
     if (!SDL_CreateWindowAndRenderer("Hello World", 800, 600, SDL_WINDOW_FULLSCREEN, &window, &renderer)) {
         SDL_Log("Couldn't create window and renderer: %s", SDL_GetError());
@@ -70,8 +87,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     SDL_GetRenderOutputSize(renderer, &w, &h);
     float h_float = h;
     float w_float = w;
-    // load the PNG
-    auto png_surface = IMG_Load("../fieldScreen.png");
+    auto png_surface = IMG_Load(GetResourcePath("fieldScreen.png").c_str());
     if (!png_surface)
     {
         return SDL_APP_FAILURE;
@@ -83,7 +99,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[0].addComponent(Size{w, h});
 
     const int centerSize = 500;
-    auto centerOfFieldSurface = IMG_Load("../center.png");
+    auto centerOfFieldSurface = IMG_Load(GetResourcePath("center.png").c_str());
     if (!centerOfFieldSurface)
     {
         return SDL_APP_FAILURE;
@@ -94,8 +110,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[1].addComponent(Position{w_float / 2.0f - centerSize / 2, h_float / 2.0f - centerSize / 2});
     entities[1].addComponent(Size{ centerSize, centerSize });
 
-
-    SDL_Surface* ball_surface = IMG_Load("../ball.png");
+    SDL_Surface* ball_surface = IMG_Load(GetResourcePath("ball.png").c_str());
     if (!ball_surface)
     {
         return SDL_APP_FAILURE;
@@ -110,8 +125,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[2].addComponent(Debug{ "BALL" });
     entities[2].addComponent(Ball{});
 
-
-    SDL_Surface* playerRedSurface = IMG_Load("../playerRed.png");
+    SDL_Surface* playerRedSurface = IMG_Load(GetResourcePath("playerRed.png").c_str());
     if (!playerRedSurface)
     {
         return SDL_APP_FAILURE;
@@ -129,7 +143,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     //    SDL_GAMEPAD_BUTTON_DPAD_UP, SDL_GAMEPAD_BUTTON_DPAD_RIGHT, SDL_GAMEPAD_BUTTON_DPAD_DOWN, SDL_GAMEPAD_BUTTON_DPAD_LEFT});
 
 
-    SDL_Surface* playerBlueSurface = IMG_Load("../playerBlue.png");
+    SDL_Surface* playerBlueSurface = IMG_Load(GetResourcePath("playerBlue.png").c_str());
     if (!playerBlueSurface)
     {
         return SDL_APP_FAILURE;
@@ -144,7 +158,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[4].addComponent(Collider{});
     entities[4].addComponent(Control{SDLK_W, SDLK_D, SDLK_S, SDLK_A});
 
-    SDL_Surface* wallSurface = IMG_Load("../wall.png");
+    SDL_Surface* wallSurface = IMG_Load(GetResourcePath("wall.png").c_str());
     if (!wallSurface)
     {
         return SDL_APP_FAILURE;
@@ -157,7 +171,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
 
     float k_size_goal = 1 / 2.2f;
     float k_size_wall = (1 - k_size_goal) / 2;
-    
+
     entities[5].addComponent(Texture{ wallTexture });
     entities[5].addComponent(Position{0, 0});
     entities[5].addComponent(Size{w, 20 });
@@ -202,12 +216,13 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[12].addComponent(Size{ 20.0f, h * k_size_wall});
     entities[12].addComponent(Collider{ true, true });
 
-    font = TTF_OpenFont("../uefa-nations-titling.ttf", 36.0f);
+    font = TTF_OpenFont(GetResourcePath("uefa-nations-titling.ttf").c_str(), 36.0f);
     if (!font)
     {
         return SDL_APP_FAILURE;
     }
-    fontLarge = TTF_OpenFont("../uefa-nations-titling.ttf", 72.0f);
+
+    fontLarge = TTF_OpenFont(GetResourcePath("uefa-nations-titling.ttf").c_str(), 72.0f);
     if (!fontLarge)
     {
         return SDL_APP_FAILURE;
