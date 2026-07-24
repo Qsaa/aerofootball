@@ -21,6 +21,7 @@
 #include <vector>
 #include <array>
 #include <format>
+#include <cstdint>
 
 #include "entity.hpp"
 
@@ -120,7 +121,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     entities[2].addComponent(Texture{ball_texture});
     entities[2].addComponent(Position{w_float / 2.0f - 50.0f, h_float / 2.0f });
     entities[2].addComponent(Size{ 100, 100 });
-    entities[2].addComponent(Velocity{0, 20 });
+    entities[2].addComponent(Velocity{0, 300 });
     entities[2].addComponent(Collider{true, false});
     entities[2].addComponent(Debug{ "BALL" });
     entities[2].addComponent(Ball{});
@@ -435,10 +436,14 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
     return SDL_APP_CONTINUE;
 }
 
+const Uint64 target_ns = 16666666ULL;
+
 /* This function runs once per frame, and is the heart of the program. */
 SDL_AppResult SDL_AppIterate(void* appstate)
 {
     /* Draw the message */
+    Uint64 start_time = SDL_GetPerformanceCounter();
+
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
@@ -448,6 +453,12 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 
     SDL_RenderPresent(renderer);
 
+    Uint64 end_time = SDL_GetPerformanceCounter();
+    Uint64 elapsed_ns = (end_time - start_time) * 1000000000ULL / SDL_GetPerformanceFrequency();
+    if (elapsed_ns < target_ns)
+    {
+        SDL_DelayNS(target_ns - elapsed_ns);
+    }
     return SDL_APP_CONTINUE;
 }
 

@@ -37,8 +37,8 @@ void control(Entities& entities)
 
         Velocity* vel = entity.getComponent<Velocity>();
 
-        vel->vx_ = horizontal * 20;
-        vel->vy_ = vertical * 20;
+        vel->vx_ = horizontal * 300;
+        vel->vy_ = vertical * 300;
         if (std::abs(horizontal) + std::abs(vertical) > 1.98)
         {
             vel->vx_ *= std::sqrt(2.0) / 2.0;
